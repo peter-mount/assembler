@@ -12,9 +12,11 @@ func (a Address) Add(n int) Address {
 }
 
 type AddressBlock struct {
-	Name       string
-	Start, End Address
-	ReadOnly   bool
+	Name     string  `yaml:"name"`
+	Start    Address `yaml:"start"`
+	End      Address `yaml:"end"`
+	ReadOnly bool    `yaml:"readOnly"`
+	Notes    string  `yaml:"notes"`
 }
 
 func (r AddressBlock) Contains(addr Address) bool {

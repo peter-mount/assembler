@@ -2,13 +2,16 @@ package main
 
 import (
 	common "assembler"
+	"assembler/machine"
 	"github.com/peter-mount/go-kernel/v2"
 	"log"
 )
 
 func main() {
-	err := kernel.Launch(&common.VersionService{})
-	if err != nil {
+	if err := kernel.Launch(
+		&common.VersionService{},
+		&machine.Service{},
+	); err != nil {
 		log.Fatal(err)
 	}
 }

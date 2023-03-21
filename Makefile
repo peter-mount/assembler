@@ -66,6 +66,7 @@ init: go-init
 test: go-test
 
 tools: $(subst /bin/main.go,,$(subst tools,$(BUILDS),$(shell ls tools/*/bin/main.go)))
+	$(foreach PLATFORM,$(shell cd $(BUILDS);ls -d */*),$(call TAR,$(PLATFORM))${\n})
 
 dist: all
 	$(MKDIR) $(DIST)

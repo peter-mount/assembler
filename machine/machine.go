@@ -3,7 +3,6 @@ package machine
 import (
 	"assembler/memory"
 	"fmt"
-	"github.com/peter-mount/go-kernel/v2/log"
 	"github.com/peter-mount/go-kernel/v2/util/walk"
 	"gopkg.in/yaml.v2"
 	"os"
@@ -24,7 +23,7 @@ type Machine struct {
 	Memory      []memory.AddressBlock `yaml:"memory"`
 }
 
-func (m *Machine) Create() (*memory.Map, error) {
+func (m *Machine) create() (*memory.Map, error) {
 	mem := &memory.Map{}
 	for _, b := range m.Memory {
 		if err := mem.AddBlock(memory.NewMemoryBlock(b)); err != nil {
@@ -36,7 +35,8 @@ func (m *Machine) Create() (*memory.Map, error) {
 }
 
 type Service struct {
-	machines map[string]*Machine
+	ShowMachines *bool `kernel:"flag,machines,Show available machine names"`
+	machines     map[string]*Machine
 }
 
 func (s *Service) Start() error {
@@ -53,12 +53,20 @@ func (s *Service) Start() error {
 		return err
 	}
 
-	if log.IsVerbose() {
-		log.Printf("Available machines: %s",
+	if *s.ShowMachines {
+		return fmt.Errorf("Available machines: %s\n",
 			strings.Join(s.AvailableMachines(), ", "))
 	}
 
 	return nil
+}
+
+func (s *Service) CreateMachine(n string) (*memory.Map, error) {
+	m, exists := s.machines[strings.ToLower(n)]
+	if !exists {
+		return nil, fmt.Errorf("machine %q is unknown", n)
+	}
+	return m.create()
 }
 
 func (s *Service) AvailableMachines() []string {

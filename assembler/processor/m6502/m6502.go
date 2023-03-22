@@ -3,13 +3,8 @@ package m6502
 import (
 	"assembler/assembler/lexer"
 	"assembler/assembler/parser"
-	"github.com/peter-mount/go-kernel/v2"
 	"strings"
 )
-
-func init() {
-	kernel.Register(&M6502{})
-}
 
 // M6502 implements the 6502 processor.
 // Subtypes like the 65c02 extends this for the additional instructions

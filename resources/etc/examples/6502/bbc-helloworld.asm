@@ -12,7 +12,7 @@
     JSR &ffee
     INY
     BNE l1
-.l2 RTS
+l2  RTS
 
 .text
     EQUS "Hello world!", 13, 10, 0

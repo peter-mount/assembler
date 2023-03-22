@@ -2,6 +2,7 @@
 ; This is a simple Hello World example for the BBC micro
 ; ********************************************************************************
     Machine "bbc-tape"
+    CPU "6502"
     ORG 0x2000
 
 .start

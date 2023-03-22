@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"assembler/util"
 	"strings"
 	"unicode"
 )
@@ -38,6 +39,7 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 			}
 		}
 
+		var tok2 *Token
 		var text []string
 		tid := 0
 		tlen := len(tokens)
@@ -46,6 +48,11 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 			token := tokens[tid]
 			tok := token.Token
 			hasMore := (tid + 1) < tlen
+			if hasMore {
+				tok2 = tokens[tid+1]
+			} else {
+				tok2 = nil
+			}
 			/*if hasMore {
 				fmt.Printf("%d %q %d %q\n", tok, token.Text, tokens[tid+1].Token, tokens[tid+1].Text)
 			} else {
@@ -56,8 +63,13 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 			case tok == TokenWhitespace:
 				setLabel = false
 
+			// Strip "" from text as we want to handle this raw
+			case tok == TokenString:
+				token.Text = strings.Trim(token.Text, "\"")
+				line.Tokens = append(line.Tokens, token)
+
 			// Line starts with .ident then skip, the next pass will set it as the label
-			case setLabel && tok == '.' && hasMore && tokens[tid+1].Token == TokenIdent:
+			case setLabel && tok == '.' && hasMore && tok2.Token == TokenIdent:
 				// Skip, we will see it as an ident next
 
 			// Line starts with an ident then it's the label
@@ -65,6 +77,12 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 				setLabel = false
 				line.Label = token.Text
 				token.Token = TokenLabel
+
+			// &1234 or &fedc are treated as hex values
+			case (tok == '&' || tok == '$') && hasMore && tok2.Token == TokenInt,
+				(tok == '&' || tok == '$') && hasMore && tok2.Token == TokenIdent && util.IsHex(tok2.Text):
+				tok2.Token = TokenInt
+				tok2.Text = token.Text + tok2.Text
 
 			default:
 				line.Tokens = append(line.Tokens, token)

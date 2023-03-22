@@ -11,7 +11,8 @@ import (
 )
 
 type Assembler struct {
-	memory *memory.Map
+	processorRegistry *parser.ProcessorRegistry `kernel:"inject"`
+	memory            *memory.Map
 }
 
 func (a *Assembler) Start() error {
@@ -33,7 +34,9 @@ func (a *Assembler) Assemble(fileName string) error {
 		return err
 	}
 
-	parse := parser.Parser{}
+	parse := parser.Parser{
+		ProcessorRegistry: a.processorRegistry,
+	}
 	_, err = parse.Parse(lex.Lines())
 	if err != nil {
 		return err

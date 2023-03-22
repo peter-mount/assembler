@@ -18,6 +18,8 @@ const (
 	TokenStart                          // Start of assembly - parser only
 	TokenLine                           // Start of a line
 	TokenLabel                          // Set Label
+	TokenOpcode                         // A parsed OPCode
+	TokenData                           // A parsed data block
 )
 
 type Token struct {

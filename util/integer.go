@@ -20,3 +20,8 @@ func Atoi(s string) (int64, error) {
 		return strconv.ParseInt(s, 10, 64)
 	}
 }
+
+func IsHex(s string) bool {
+	_, err := strconv.ParseInt(s, 16, 64)
+	return err == nil
+}

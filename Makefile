@@ -75,9 +75,9 @@ dist: all
 #####################
 # Used in debugging #
 #####################
-.PHONY: png mp4
+.PHONY: examples
 
-png: all
-	$(call cmd,"VIDIDENT","~/test.xml");$(BUILDS)/linux/amd64/bin/videoident -v \
-		-frame $(FRAME) \
-		test.xml
+examples: all
+	$(call cmd,"ASM","resources/etc/examples/6502/bbc-helloworld.asm");\
+	$(BUILDS)/linux/amd64/bin/asm6502 -v \
+		resources/etc/examples/6502/bbc-helloworld.asm

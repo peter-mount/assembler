@@ -4,6 +4,7 @@ import (
 	"assembler/assembler/lexer"
 	"assembler/assembler/parser"
 	"assembler/memory"
+	"context"
 	"flag"
 	"fmt"
 	"github.com/peter-mount/go-kernel/v2/log"
@@ -37,7 +38,12 @@ func (a *Assembler) Assemble(fileName string) error {
 	parse := parser.Parser{
 		ProcessorRegistry: a.processorRegistry,
 	}
-	_, err = parse.Parse(lex.Lines())
+	root, err := parse.Parse(lex.Lines())
+	if err != nil {
+		return err
+	}
+
+	err = root.Visit(context.Background())
 	if err != nil {
 		return err
 	}

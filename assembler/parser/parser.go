@@ -2,6 +2,7 @@ package parser
 
 import (
 	"assembler/assembler/lexer"
+	"assembler/assembler/node"
 	"assembler/machine"
 	"assembler/memory"
 	"assembler/util"
@@ -11,32 +12,36 @@ import (
 
 type Parser struct {
 	ProcessorRegistry *ProcessorRegistry
-	root              *Node
+	root              *node.Node
 	machine           *machine.Machine
 	org               memory.Address
 	processor         Processor
 }
 
-func (p *Parser) Parse(lines []*lexer.Line) (*Node, error) {
-	root := NewNodeByRune(lexer.TokenStart)
+func (p *Parser) Parse(lines []*lexer.Line) (*node.Node, error) {
+	root := node.NewByRune(lexer.TokenStart)
+	root.Handler = node.CallChildren
 	curNode := root
 
-	for _, line := range lines {
-		nextNode, err := p.parseLine(curNode, line)
+	for lineNo, line := range lines {
+		nextNode, err := p.parseLine(line)
 		if err != nil {
 			return nil, err
 		}
+		if nextNode == nil {
+			panic(fmt.Errorf("nil nextNode line %d", lineNo))
+		}
+		curNode.AddRight(nextNode)
 		curNode = nextNode
 	}
 
 	return root, nil
 }
 
-func (p *Parser) parseLine(curNode *Node, line *lexer.Line) (*Node, error) {
-	lineNode := NewNodeByRune(lexer.TokenLine)
+func (p *Parser) parseLine(line *lexer.Line) (*node.Node, error) {
+	lineNode := node.NewByRune(lexer.TokenLine)
 	lineNode.Line = line
-	curNode.Right = lineNode
-	curNode = lineNode
+	lineNode.Handler = node.CallChildren
 
 	// TODO this should be set at a later stage
 	line.Address = p.org
@@ -45,24 +50,29 @@ func (p *Parser) parseLine(curNode *Node, line *lexer.Line) (*Node, error) {
 		tok := token.Token
 		switch tok {
 		case lexer.TokenLabel:
-			lineNode.Left = NewNode(token)
+			// FIXME needs to be label setter
+			lineNode.AddLeft(node.New(token))
+
 		case lexer.TokenComment:
-		// Drop comments
+			// Drop comments
+
 		case lexer.TokenIdent:
-			n, err := p.parseOperand(curNode, token, line.Tokens[i+1:])
+			n, err := p.parseOperand(token, line.Tokens[i+1:])
 			if err != nil {
 				return nil, token.Pos.Error(err)
 			}
-			return n, nil
+			lineNode.AddRight(n)
+			return lineNode, nil
+
 		default:
 			return nil, token.Pos.Errorf("Unsupported token %d %c", tok, tok)
 		}
 	}
 
-	return curNode, nil
+	return lineNode, nil
 }
 
-func (p *Parser) parseOperand(curNode *Node, token *lexer.Token, tokens []*lexer.Token) (*Node, error) {
+func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.Node, error) {
 	command := strings.ToLower(token.Text)
 	switch {
 	case command == "cpu" && len(tokens) > 0:
@@ -70,8 +80,10 @@ func (p *Parser) parseOperand(curNode *Node, token *lexer.Token, tokens []*lexer
 		if p.processor == nil {
 			return nil, token.Pos.Errorf("unsupported processor %q", tokens[0].Text)
 		}
+		return nil, nil
 
 	case command == "machine":
+		return nil, nil
 
 	case command == "org":
 		if tokens[0].Token == lexer.TokenInt {
@@ -81,46 +93,30 @@ func (p *Parser) parseOperand(curNode *Node, token *lexer.Token, tokens []*lexer
 			}
 			p.org = memory.Address(a)
 		}
+		return nil, nil
 
 	case command == "equb", command == "equs":
-		if err := p.parseEqub(curNode, tokens); err != nil {
-			return nil, err
-		}
-
-	case command == "iny":
-		p.org = p.org.Add(curNode.GetLine().SetData(0xC8))
-	case command == "rts":
-		p.org = p.org.Add(curNode.GetLine().SetData(0x60))
+		return p.parseEqub(token, tokens)
 
 	default:
 		if p.processor == nil {
 			return nil, token.Pos.Errorf("No processor set for operand %q", token.Text)
 		}
 
-		cn, err := p.processor.Parse(curNode, token, tokens)
+		cn, err := p.processor.Parse(token, tokens)
 		if err != nil {
 			return nil, err
 		}
 
-		if cn == nil {
-			// FIXME instruction not recognised so fail here
-			curNode.GetLine().SetData(0xea)
-			//return nil, token.Pos.Errorf("Unsupported operand %q", token.Text)
-		}
-
-		// It's now an opcode if it's still an Ident
-		if curNode.Token.Token == lexer.TokenIdent {
-			curNode.Token.Token = lexer.TokenOpcode
+		if cn != nil {
+			return cn, nil
 		}
 	}
 
-	// FIXME for now increment this, move it to the main assembler stage
-	p.org = p.org.Add(len(curNode.GetLine().Data()))
-
-	return curNode, nil
+	return nil, token.Pos.Errorf("Unsupported operand %q", token.Text)
 }
 
-func (p *Parser) parseEqub(curNode *Node, tokens []*lexer.Token) error {
+func (p *Parser) parseEqub(tok *lexer.Token, tokens []*lexer.Token) (*node.Node, error) {
 	var b []byte
 	for _, token := range tokens {
 		switch token.Token {
@@ -133,7 +129,7 @@ func (p *Parser) parseEqub(curNode *Node, tokens []*lexer.Token) error {
 		case lexer.TokenInt:
 			a, err := util.Atoi(token.Text)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			// TODO lookahead for ';' separator, if present then a 16-bit integer not 8-bit
 
@@ -144,7 +140,7 @@ func (p *Parser) parseEqub(curNode *Node, tokens []*lexer.Token) error {
 
 			// Validate range, TODO handle 16-bit here as well
 			if a < 0 || a > 255 {
-				return fmt.Errorf("%q is not a byte", token.Text)
+				return nil, fmt.Errorf("%q is not a byte", token.Text)
 			}
 
 			b = append(b, byte(a))
@@ -155,12 +151,13 @@ func (p *Parser) parseEqub(curNode *Node, tokens []*lexer.Token) error {
 		case ',', ';':
 
 		default:
-			return token.Pos.Errorf("unsupported token %q", token.Text)
+			return nil, token.Pos.Errorf("unsupported token %q", token.Text)
 		}
 	}
 
-	curNode.Token.Token = lexer.TokenData
-	curNode.GetLine().SetData(b...)
+	tok.Token = lexer.TokenData
+	n := node.New(tok)
+	//tok.token..SetData(b...)
 
-	return nil
+	return n, nil
 }

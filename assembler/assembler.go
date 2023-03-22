@@ -2,20 +2,23 @@ package assembler
 
 import (
 	"assembler/assembler/lexer"
+	"assembler/assembler/parser"
 	"assembler/memory"
 	"flag"
+	"fmt"
 	"github.com/peter-mount/go-kernel/v2/log"
+	"os"
 )
 
 type Assembler struct {
 	memory *memory.Map
-	lexer  *lexer.Lexer
 }
 
 func (a *Assembler) Start() error {
 	for _, fileName := range flag.Args() {
 		if err := a.Assemble(fileName); err != nil {
-			return err
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			return nil
 		}
 
 	}
@@ -23,17 +26,21 @@ func (a *Assembler) Start() error {
 }
 
 func (a *Assembler) Assemble(fileName string) error {
-	if a.lexer == nil {
-		a.lexer = &lexer.Lexer{}
-	}
+	lex := lexer.Lexer{}
 
-	err := a.lexer.Parse(fileName)
+	err := lex.Parse(fileName)
 	if err != nil {
 		return err
 	}
 
-	_ = a.lexer.ForEach(func(l *lexer.Line) error {
-		log.Println(l.String(a.memory))
+	parse := parser.Parser{}
+	_, err = parse.Parse(lex.Lines())
+	if err != nil {
+		return err
+	}
+
+	_ = lex.ForEach(func(l *lexer.Line) error {
+		log.Println(l.String())
 		return nil
 	})
 

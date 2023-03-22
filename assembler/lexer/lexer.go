@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"github.com/peter-mount/go-kernel/v2/log"
 	"text/scanner"
 )
 
@@ -27,7 +26,6 @@ func (l *Lexer) Parse(fileName string) error {
 
 	l.curFile = file
 	defer func() {
-		log.Printf("Exiting %q", l.curFile.Name())
 		nl := len(l.fileStack)
 		if nl > 0 {
 			l.curFile = l.fileStack[nl-1]
@@ -36,11 +34,8 @@ func (l *Lexer) Parse(fileName string) error {
 			l.curFile = nil
 		}
 		if l.curFile != nil {
-			log.Printf("Resuming %q", l.curFile.Name())
 		}
 	}()
-
-	log.Printf("Entering %q", l.curFile.Name())
 
 	return l.curFile.ForEach(l.tokenizeLine)
 }

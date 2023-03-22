@@ -16,3 +16,11 @@ func (p Position) String() string {
 	}
 	return fmt.Sprintf("[%s,%d,%d]", p.File.BaseName(), p.Line, p.Pos)
 }
+
+func (p Position) Errorf(s string, a ...interface{}) error {
+	return fmt.Errorf(p.String()+" "+s, a...)
+}
+
+func (p Position) Error(err error) error {
+	return p.Errorf("%s", err.Error())
+}

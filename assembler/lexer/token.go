@@ -15,6 +15,7 @@ const (
 	TokenRawString  = scanner.RawString // Raw string
 	TokenComment    = scanner.Comment   // Comment
 	TokenWhitespace = -(iota + 1)       // Whitespace
+	TokenStart                          // Start of assembly - parser only
 	TokenLine                           // Start of a line
 	TokenLabel                          // Set Label
 )

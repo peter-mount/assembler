@@ -61,6 +61,15 @@ func (a *Assembler) processStage(stage context.Stage, ctx context.Context) error
 		a.root = root
 		return nil
 
+	case context.StageList:
+		if err := a.root.Visit(ctx); err != nil {
+			return err
+		}
+		// Write the last address at the end, this is the address after the
+		// previous content but handy in a listing
+		log.Printf("%04x", ctx.GetAddress())
+		return nil
+
 	case context.StageSymbols:
 		labels := ctx.GetLabels()
 		ml := 8

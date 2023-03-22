@@ -53,11 +53,7 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 			} else {
 				tok2 = nil
 			}
-			/*if hasMore {
-				fmt.Printf("%d %q %d %q\n", tok, token.Text, tokens[tid+1].Token, tokens[tid+1].Text)
-			} else {
-				fmt.Printf("%d %q\n", tok, token.Text)
-			}*/
+
 			switch {
 			// strip whitespace but clear setLabel as we can't now have one
 			case tok == TokenWhitespace:
@@ -93,11 +89,6 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 			tid++
 		}
 		line.Line = strings.Join(text, " ")
-
-		/*for _, t := range line.Tokens {
-			fmt.Printf("%s ", t.String())
-		}
-		fmt.Println()*/
 	}
 
 	// Add line to Lexer

@@ -83,11 +83,9 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 		return nil, nil
 
 	case command == "org":
-		if tokens[0].Token == lexer.TokenInt {
-			token.Text = tokens[0].Text
-			return node.NewWithHandler(token, common.OrgHandler), nil
-		}
-		return nil, nil
+		cn := node.NewWithHandler(token, common.OrgHandler)
+		cn.AddAllRightTokens(tokens...)
+		return cn, nil
 
 	case command == "equb", command == "equs":
 		return p.parseEqub(token, tokens)
@@ -103,6 +101,7 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 		}
 
 		if cn != nil {
+			cn.AddAllRightTokens(tokens...)
 			return cn, nil
 		}
 	}

@@ -1,6 +1,7 @@
 package context
 
 import (
+	"assembler/assembler/errors"
 	"assembler/assembler/lexer"
 	"assembler/memory"
 	"github.com/peter-mount/go-kernel/v2/log"
@@ -31,6 +32,9 @@ type Context interface {
 	GetAddress() memory.Address
 	SetAddress(memory.Address)
 	AddAddress(int) memory.Address
+	ClearStack()
+	Push(interface{})
+	Pop() (interface{}, error)
 }
 
 type context struct {
@@ -38,6 +42,7 @@ type context struct {
 	stage      Stage
 	orgAddress memory.Address
 	address    memory.Address
+	stack      []interface{}
 }
 
 func New() Context {
@@ -55,6 +60,7 @@ func (c *context) ForEachStage(f func(Stage, Context) error) error {
 	for stage := StageLex; stage < stageCount; stage++ {
 		now2 := time.Now()
 		c.stage = stage
+		c.ClearStack()
 		if err := f(stage, c); err != nil {
 			return err
 		}
@@ -71,11 +77,7 @@ func (c *context) SetLabel(n string, line *lexer.Line) error {
 	c.labels[n] = line
 	return nil
 }
-
-func (c *context) GetLabel(n string) *lexer.Line {
-	return c.labels[n]
-}
-
+func (c *context) GetLabel(n string) *lexer.Line { return c.labels[n] }
 func (c *context) GetLabels() []string {
 	var a []string
 	for k, _ := range c.labels {
@@ -87,10 +89,8 @@ func (c *context) GetLabels() []string {
 	return a
 }
 
-func (c *context) GetAddress() memory.Address { return c.address }
-
+func (c *context) GetAddress() memory.Address      { return c.address }
 func (c *context) GetStartAddress() memory.Address { return c.orgAddress }
-
 func (c *context) SetAddress(address memory.Address) {
 	c.orgAddress = address
 	c.address = address
@@ -98,4 +98,27 @@ func (c *context) SetAddress(address memory.Address) {
 func (c *context) AddAddress(delta int) memory.Address {
 	c.address = c.address.Add(delta)
 	return c.address
+}
+
+func (c *context) ClearStack()        { c.stack = nil }
+func (c *context) Push(v interface{}) { c.stack = append(c.stack, v) }
+
+func (c *context) Pop() (interface{}, error) {
+	switch len(c.stack) {
+	case 0:
+		return nil, errors.StackEmpty()
+
+	case 1:
+		v := c.stack[0]
+		c.stack = nil
+		log.Printf("Pop %v", v)
+		return v, nil
+
+	default:
+		l := len(c.stack) - 1
+		v := c.stack[l]
+		c.stack = c.stack[:l]
+		log.Printf("Pop %v <= %v", v, c.stack)
+		return v, nil
+	}
 }

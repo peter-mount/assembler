@@ -2,6 +2,7 @@ package node
 
 import (
 	"assembler/assembler/lexer"
+	"github.com/peter-mount/go-kernel/v2/log"
 )
 
 type Node struct {
@@ -14,7 +15,15 @@ type Node struct {
 }
 
 func New(token *lexer.Token) *Node {
-	return &Node{Token: token}
+	n := &Node{Token: token}
+
+	// Ensure we have a default handler for specific token types
+	switch token.Token {
+	case lexer.TokenInt:
+		n.Handler = IntHandler
+	}
+
+	return n
 }
 
 func NewByRune(tokenId rune) *Node {
@@ -60,5 +69,18 @@ func (n *Node) AddRight(b *Node) {
 		b.Parent = n
 	} else {
 		n.Right.AddRight(b)
+	}
+}
+
+func (n *Node) AddAllRightTokens(b ...*lexer.Token) {
+	for _, t := range b {
+		log.Printf("AART add %d %q", t.Token, t.Text)
+		n.AddRight(New(t))
+	}
+}
+
+func (n *Node) AddAllRight(b ...*Node) {
+	for _, b1 := range b {
+		n.AddRight(b1)
 	}
 }

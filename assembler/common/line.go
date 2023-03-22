@@ -16,5 +16,6 @@ func LineHandler(n *node.Node, ctx context.Context) error {
 		log.Println(n.Line.String())
 
 	}
+
 	return node.CallChildren(n, ctx)
 }

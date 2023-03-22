@@ -77,10 +77,12 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 				setLabel = false
 				line.Label = token.Text
 				token.Token = TokenLabel
+				line.Tokens = append(line.Tokens, token)
 
 			// &1234 or &fedc are treated as hex values
 			case (tok == '&' || tok == '$') && hasMore && tok2.Token == TokenInt,
 				(tok == '&' || tok == '$') && hasMore && tok2.Token == TokenIdent && util.IsHex(tok2.Text):
+				// Mark next token as an Int and merge the text with this one
 				tok2.Token = TokenInt
 				tok2.Text = token.Text + tok2.Text
 

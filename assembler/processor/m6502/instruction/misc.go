@@ -1,11 +1,20 @@
 package instruction
 
 import (
+	"assembler/assembler/context"
 	"assembler/assembler/node"
-	"context"
 )
 
-func NOP(node *node.Node, _ context.Context) error {
-	node.GetLine().SetData(0xea)
-	return nil
+// SimpleInstruction is used for op codes that have just 1 single instance.
+// e.g. RTS, INX or INY on the 6502 family
+func SimpleInstruction(opCode ...uint8) node.Handler {
+	return func(n *node.Node, ctx context.Context) error {
+		switch ctx.GetStage() {
+
+		case context.StageCompile:
+			n.GetLine().SetData(opCode...)
+			ctx.AddAddress(1)
+		}
+		return node.CallChildren(n, ctx)
+	}
 }

@@ -44,10 +44,12 @@ func (n *Node) AddLeft(b *Node) {
 
 	if n.Left == nil {
 		n.Left = b
-		//} else {
-		//	n.Left.AddRight(b)
+		b.Parent = n
+	} else {
+		n.Left.AddLeft(b)
 	}
 }
+
 func (n *Node) AddRight(b *Node) {
 	if n == nil || b == nil || n == b {
 		return
@@ -55,7 +57,8 @@ func (n *Node) AddRight(b *Node) {
 
 	if n.Right == nil {
 		n.Right = b
-		//} else {
-		//	n.Right.AddRight(b)
+		b.Parent = n
+	} else {
+		n.Right.AddRight(b)
 	}
 }

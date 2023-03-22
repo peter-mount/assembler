@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"assembler/assembler/common"
 	"assembler/assembler/lexer"
 	"assembler/assembler/node"
 	"assembler/machine"
@@ -41,17 +42,13 @@ func (p *Parser) Parse(lines []*lexer.Line) (*node.Node, error) {
 func (p *Parser) parseLine(line *lexer.Line) (*node.Node, error) {
 	lineNode := node.NewByRune(lexer.TokenLine)
 	lineNode.Line = line
-	lineNode.Handler = node.CallChildren
-
-	// TODO this should be set at a later stage
-	line.Address = p.org
+	lineNode.Handler = common.LineHandler
 
 	for i, token := range line.Tokens {
 		tok := token.Token
 		switch tok {
 		case lexer.TokenLabel:
-			// FIXME needs to be label setter
-			lineNode.AddLeft(node.New(token))
+			lineNode.AddLeft(node.NewWithHandler(token, common.LabelHandler))
 
 		case lexer.TokenComment:
 			// Drop comments
@@ -87,11 +84,8 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 
 	case command == "org":
 		if tokens[0].Token == lexer.TokenInt {
-			a, err := util.Atoi(tokens[0].Text)
-			if err != nil {
-				return nil, token.Pos.Error(err)
-			}
-			p.org = memory.Address(a)
+			token.Text = tokens[0].Text
+			return node.NewWithHandler(token, common.OrgHandler), nil
 		}
 		return nil, nil
 
@@ -156,8 +150,5 @@ func (p *Parser) parseEqub(tok *lexer.Token, tokens []*lexer.Token) (*node.Node,
 	}
 
 	tok.Token = lexer.TokenData
-	n := node.New(tok)
-	//tok.token..SetData(b...)
-
-	return n, nil
+	return node.NewWithHandler(tok, common.DataBlock(b...)), nil
 }

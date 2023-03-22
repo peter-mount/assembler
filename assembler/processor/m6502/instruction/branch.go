@@ -1,20 +1,17 @@
 package instruction
 
 import (
+	"assembler/assembler/context"
 	"assembler/assembler/node"
-	"context"
-	"log"
 )
 
-func RTS(node *node.Node, ctx context.Context) error {
-	log.Println("RTS")
-	node.GetLine().SetData(0x60)
-	return nil
-}
+func JSR(n *node.Node, ctx context.Context) error {
+	switch ctx.GetStage() {
 
-func JSR(node *node.Node, ctx context.Context) error {
-	log.Println("JSR")
-	// TODO placeholder
-	node.GetLine().SetData(0xff)
-	return nil
+	case context.StageCompile:
+		n.GetLine().SetData(0x20, 0, 0)
+		ctx.AddAddress(3)
+	}
+
+	return node.CallChildren(n, ctx)
 }

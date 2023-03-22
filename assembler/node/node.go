@@ -23,6 +23,9 @@ func New(token *lexer.Token) *Node {
 
 	case lexer.TokenInt:
 		n.Handler = IntHandler
+
+	case lexer.TokenIdent:
+		n.Handler = IdentHandler
 	}
 
 	return n

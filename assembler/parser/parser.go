@@ -102,7 +102,7 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 		}
 
 		if cn != nil {
-			//cn.AddAllRightTokens(tokens...)
+			cn.AddAllRightTokens(tokens...)
 			return cn, nil
 		}
 	}

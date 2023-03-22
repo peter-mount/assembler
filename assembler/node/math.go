@@ -15,3 +15,15 @@ func IntHandler(n *Node, ctx context.Context) error {
 
 	return CallChildren(n, ctx)
 }
+
+// IdentHandler is used for label/variable lookup
+func IdentHandler(n *Node, ctx context.Context) error {
+	t := n.Token.Text
+
+	line := ctx.GetLabel(t)
+	if line != nil {
+		ctx.Push(line.Address)
+	}
+
+	return CallChildren(n, ctx)
+}

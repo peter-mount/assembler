@@ -2,6 +2,7 @@ package common
 
 import (
 	"assembler/assembler/errors"
+	"assembler/memory"
 	"assembler/util"
 )
 
@@ -16,4 +17,13 @@ func ToInt(v interface{}) (int64, error) {
 		return util.Atoi(s)
 	}
 	return 0, errors.IllegalArgument()
+}
+
+func ToAddr(v interface{}) (memory.Address, error) {
+	i, err := ToInt(v)
+	if err != nil {
+		return 0, err
+	}
+
+	return memory.Address(i), nil
 }

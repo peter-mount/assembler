@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// Parser takes the tokenized lines and forms a series of AST trees
 type Parser struct {
 	ProcessorRegistry *ProcessorRegistry
 	root              *node.Node
@@ -21,19 +22,19 @@ type Parser struct {
 
 func (p *Parser) Parse(lines []*lexer.Line) (*node.Node, error) {
 	root := node.NewByRune(lexer.TokenStart)
-	root.Handler = node.CallChildren
-	curNode := root
 
 	for lineNo, line := range lines {
 		nextNode, err := p.parseLine(line)
 		if err != nil {
 			return nil, err
 		}
+
 		if nextNode == nil {
 			panic(fmt.Errorf("nil nextNode line %d", lineNo))
 		}
-		curNode.AddRight(nextNode)
-		curNode = nextNode
+
+		// Chain the line on the root, don't add it to it's tree
+		root.Handler = root.Handler.Then(node.HandlerAdaptor(nextNode))
 	}
 
 	return root, nil
@@ -101,7 +102,7 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 		}
 
 		if cn != nil {
-			cn.AddAllRightTokens(tokens...)
+			//cn.AddAllRightTokens(tokens...)
 			return cn, nil
 		}
 	}

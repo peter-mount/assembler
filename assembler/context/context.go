@@ -4,10 +4,8 @@ import (
 	"assembler/assembler/errors"
 	"assembler/assembler/lexer"
 	"assembler/memory"
-	"github.com/peter-mount/go-kernel/v2/log"
 	"sort"
 	"strings"
-	"time"
 )
 
 const (
@@ -56,17 +54,13 @@ func (c *context) GetStage() Stage {
 }
 
 func (c *context) ForEachStage(f func(Stage, Context) error) error {
-	now1 := time.Now()
 	for stage := StageLex; stage < stageCount; stage++ {
-		now2 := time.Now()
 		c.stage = stage
 		c.ClearStack()
 		if err := f(stage, c); err != nil {
 			return err
 		}
-		log.Printf("Stage %d took %v", stage, time.Now().Sub(now2))
 	}
-	log.Printf("Assembly took %v", time.Now().Sub(now1))
 	return nil
 }
 
@@ -111,14 +105,12 @@ func (c *context) Pop() (interface{}, error) {
 	case 1:
 		v := c.stack[0]
 		c.stack = nil
-		log.Printf("Pop %v", v)
 		return v, nil
 
 	default:
 		l := len(c.stack) - 1
 		v := c.stack[l]
 		c.stack = c.stack[:l]
-		log.Printf("Pop %v <= %v", v, c.stack)
 		return v, nil
 	}
 }

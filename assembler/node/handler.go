@@ -9,6 +9,27 @@ import (
 
 type Handler func(*Node, context.Context) error
 
+func (a Handler) Then(b Handler) Handler {
+	if a == nil {
+		return b
+	}
+	if b == nil {
+		return a
+	}
+	return func(n *Node, ctx context.Context) error {
+		if err := a(n, ctx); err != nil {
+			return err
+		}
+		return b(n, ctx)
+	}
+}
+
+func HandlerAdaptor(n *Node) Handler {
+	return func(_ *Node, ctx context.Context) error {
+		return n.Handler(n, ctx)
+	}
+}
+
 type Map map[string]Handler
 
 type Entry struct {

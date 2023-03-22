@@ -2,7 +2,6 @@ package node
 
 import (
 	"assembler/assembler/lexer"
-	"github.com/peter-mount/go-kernel/v2/log"
 )
 
 type Node struct {
@@ -19,6 +18,9 @@ func New(token *lexer.Token) *Node {
 
 	// Ensure we have a default handler for specific token types
 	switch token.Token {
+	case lexer.TokenStart:
+		n.Handler = CallChildren
+
 	case lexer.TokenInt:
 		n.Handler = IntHandler
 	}
@@ -74,7 +76,6 @@ func (n *Node) AddRight(b *Node) {
 
 func (n *Node) AddAllRightTokens(b ...*lexer.Token) {
 	for _, t := range b {
-		log.Printf("AART add %d %q", t.Token, t.Text)
 		n.AddRight(New(t))
 	}
 }

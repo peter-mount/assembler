@@ -6,7 +6,10 @@ import (
 	"github.com/peter-mount/go-kernel/v2/log"
 )
 
+// LineHandler handles the processing of lexer.Line's
 func LineHandler(n *node.Node, ctx context.Context) error {
+	ctx.ClearStack()
+
 	switch ctx.GetStage() {
 
 	case context.StageCompile:

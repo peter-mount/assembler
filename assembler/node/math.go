@@ -5,16 +5,13 @@ import (
 	"assembler/util"
 )
 
+// IntHandler converts its text into an integer and pushes it onto the stack
 func IntHandler(n *Node, ctx context.Context) error {
-	switch ctx.GetStage() {
-
-	case context.StageCompile:
-		a, err := util.Atoi(n.Token.Text)
-		if err != nil {
-			return n.Token.Pos.Error(err)
-		}
-		ctx.Push(a)
+	a, err := util.Atoi(n.Token.Text)
+	if err != nil {
+		return n.Token.Pos.Error(err)
 	}
+	ctx.Push(a)
 
 	return CallChildren(n, ctx)
 }

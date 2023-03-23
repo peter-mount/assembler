@@ -25,7 +25,7 @@ func (p *M6502) PostInit() error {
 		node.Entry{Name: "RTS", Handler: SimpleInstruction(0x60)},
 	)
 
-	// Add all branch op codes
+	// Add all conditional branch instructions
 	for k, _ := range branchOpcodes {
 		p.instructions.AddEntry(node.Entry{Name: k, Handler: Branch})
 	}

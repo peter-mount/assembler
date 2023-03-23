@@ -4,40 +4,31 @@ import (
 	"assembler/assembler/common"
 	"assembler/assembler/context"
 	"assembler/assembler/node"
-	"assembler/memory"
 	"strings"
 )
 
 func JSR(n *node.Node, ctx context.Context) error {
-	err := node.CallChildren(n, ctx)
-	if err == nil {
-		switch ctx.GetStage() {
+	var err error
+	switch ctx.GetStage() {
 
-		case context.StageCompile:
-			// reserve 3 bytes
-			ctx.AddAddress(3)
+	case context.StageCompile:
+		// reserve 3 bytes
+		ctx.AddAddress(3)
 
-		case context.StageBackref:
-			var r interface{}
-			var addr memory.Address
-			if err == nil {
-				r, err = ctx.Pop()
-				if err == nil {
-					addr, err = common.ToAddr(r)
-				}
-			}
-
-			if err != nil {
-				return n.Token.Pos.Error(err)
-			}
-
-			b := addr.ToLittleEndian()
-			n.GetLine().SetData(0x20, b[0], b[1])
+	case context.StageBackref:
+		addr, err := common.GetNodeAddress(n.Right, ctx)
+		if err != nil {
+			return n.Token.Pos.Error(err)
 		}
+
+		b := addr.ToLittleEndian()
+		n.GetLine().SetData(0x20, b[0], b[1])
 	}
+
 	return err
 }
 
+// conditional branch instruction opCodes, used by Branch
 var branchOpcodes = map[string]byte{
 	"bcc": 0x90,
 	"bcs": 0xb0,
@@ -49,6 +40,7 @@ var branchOpcodes = map[string]byte{
 	"bvs": 0x70,
 }
 
+// Branch handles the 6502 conditional branch instructions.
 func Branch(n *node.Node, ctx context.Context) error {
 	// Resolve the opCode for this instruction
 	opName := strings.ToLower(n.Token.Text)
@@ -67,39 +59,26 @@ func BranchAlways(n *node.Node, ctx context.Context) error {
 
 // branchOp common handler for Branch and BranchAlways
 func branchOp(opCode byte, n *node.Node, ctx context.Context) error {
-	err := node.CallChildren(n, ctx)
-	if err == nil {
-		switch ctx.GetStage() {
+	switch ctx.GetStage() {
 
-		case context.StageCompile:
-			ctx.AddAddress(2)
+	case context.StageCompile:
+		ctx.AddAddress(2)
 
-		case context.StageBackref:
-			var r interface{}
-			var addr memory.Address
-			if err == nil {
-				r, err = ctx.Pop()
-				if a, ok := r.(memory.Address); ok {
-					addr = a
-				} else if err == nil {
-					addr, err = common.ToAddr(r)
-				}
-			}
-
-			if err != nil {
-				return n.Token.Pos.Error(err)
-			}
-
-			l := n.GetLine()
-			// TODO check this is correct
-			delta := int(addr) - int(l.Address)
-			//log.Printf("Delta %d", delta)
-			if delta < -127 || delta > 127 {
-				return l.Pos.Errorf("Destination %q is %d bytes away, exceeding instruction")
-			}
-
-			n.GetLine().SetData(opCode, byte(delta))
+	case context.StageBackref:
+		addr, err := common.GetNodeAddress(n.Right, ctx)
+		if err != nil {
+			return n.Token.Pos.Error(err)
 		}
+
+		l := n.GetLine()
+		// TODO check this is correct
+		delta := int(addr) - int(l.Address)
+		//log.Printf("Delta %d", delta)
+		if delta < -127 || delta > 127 {
+			return l.Pos.Errorf("Destination %q is %d bytes away, exceeding instruction")
+		}
+
+		n.GetLine().SetData(opCode, byte(delta))
 	}
 	return nil
 }

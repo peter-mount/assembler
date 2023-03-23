@@ -21,17 +21,32 @@ const (
 type Stage int
 
 type Context interface {
+	// GetStage returns the current assembly Stage
 	GetStage() Stage
+	// ForEachStage calls a function once for each possible Stage
 	ForEachStage(func(Stage, Context) error) error
+
+	// GetLabel returns the Line that contains the given label
 	GetLabel(n string) *lexer.Line
+	// SetLabel sets the Line a label references
 	SetLabel(n string, line *lexer.Line) error
+	// GetLabels returns all labels in sorted order
 	GetLabels() []string
+
+	// GetStartAddress returns the value from the last ORG instruction
 	GetStartAddress() memory.Address
+	// GetAddress returns the current address being assembled
 	GetAddress() memory.Address
+	// SetAddress sets the next assembly address. Used by the ORG instruction
 	SetAddress(memory.Address)
+	// AddAddress adds a value to the current assembly address
 	AddAddress(int) memory.Address
+
+	// ClearStack clears the value stack
 	ClearStack()
+	// Push a value onto the top of the value stack
 	Push(interface{})
+	// Pop a value from the value stack
 	Pop() (interface{}, error)
 }
 

@@ -56,8 +56,17 @@ func Branch(n *node.Node, ctx context.Context) error {
 	if !exists {
 		return n.Token.Pos.Errorf("opcode %q not recognised", opName)
 	}
+	return branchOp(opCode, n, ctx)
+}
 
-	//log.Printf("Branch %d %q", n.Token.Token, n.Token.Text)
+// BranchAlways is the 65c02 BRA instruction which shares the same
+// underlying handler as the other branch relative instructions on the 6502
+func BranchAlways(n *node.Node, ctx context.Context) error {
+	return branchOp(0x80, n, ctx)
+}
+
+// branchOp common handler for Branch and BranchAlways
+func branchOp(opCode byte, n *node.Node, ctx context.Context) error {
 	err := node.CallChildren(n, ctx)
 	if err == nil {
 		switch ctx.GetStage() {

@@ -37,7 +37,6 @@ func (p *M6502) PostInit() error {
 func (p *M6502) ProcessorName() string { return "6502" }
 
 // Parse parses the current token (always TokenIdent) and returns the current node parsed into an AST tree.
-
 func (p *M6502) Parse(token *lexer.Token, tokens []*lexer.Token) (*node.Node, error) {
 	if h, resolved := p.instructions.ResolveToken(token); resolved {
 		return node.NewWithHandler(token, h), nil

@@ -21,8 +21,15 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 		line.Line = ""
 
 	default:
-		// TODO parse line based on style
-		l.scanner.Init(strings.NewReader(line.Line))
+		lineText := line.Line
+
+		// Strip any inline comment
+		if ci := strings.IndexByte(lineText, ';'); ci > -1 {
+			line.Comment = lineText[ci:]
+			lineText = lineText[:ci]
+		}
+
+		l.scanner.Init(strings.NewReader(lineText))
 		l.scanner.Whitespace = 0
 
 		var tokens []*Token

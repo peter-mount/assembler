@@ -33,7 +33,7 @@ type Addressing struct {
 	Value2      uint        // Second value found, for BlockMove
 }
 
-func GetAddressing(n *node.Node, ctx context.Context) (Addressing, error) {
+func GetAddressing(n *node.Node, ctx context.Context, accept ...AddressMode) (Addressing, error) {
 	var err error
 	addr := Addressing{}
 
@@ -46,7 +46,7 @@ func GetAddressing(n *node.Node, ctx context.Context) (Addressing, error) {
 	// Immediate # value
 	case r.Token.Token == '#' && r.Right != nil:
 		addr.AddressMode = AMImmediate
-		i, err := common.GetNodeInt(r.Right, ctx)
+		i, err := common.GetNodeInt(r, ctx)
 		if err == nil {
 			addr.Value = uint(i)
 		}
@@ -54,9 +54,22 @@ func GetAddressing(n *node.Node, ctx context.Context) (Addressing, error) {
 	// Default to address
 	default:
 		addr.AddressMode = AMAddress
-		i, err := common.GetNodeInt(r.Right, ctx)
+		i, err := common.GetNodeInt(r, ctx)
 		if err == nil {
 			addr.Value = uint(i)
+		}
+	}
+
+	// If we are picky then verify we support the resolved addressing mode
+	if err == nil && len(accept) > 0 {
+		found := false
+		for _, a := range accept {
+			if a == addr.AddressMode {
+				found = true
+			}
+		}
+		if !found {
+			err = n.Token.Pos.Errorf("Invalid addressing mode %d", addr.AddressMode)
 		}
 	}
 

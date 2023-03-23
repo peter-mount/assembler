@@ -1,9 +1,9 @@
 package m6502
 
 import (
-	"assembler/assembler/common"
 	"assembler/assembler/context"
 	"assembler/assembler/node"
+	"assembler/memory"
 	"strings"
 )
 
@@ -16,12 +16,12 @@ func JSR(n *node.Node, ctx context.Context) error {
 		ctx.AddAddress(3)
 
 	case context.StageBackref:
-		addr, err := common.GetNodeAddress(n.Right, ctx)
+		params, err := GetAddressing(n, ctx, AMAddress)
 		if err != nil {
 			return n.Token.Pos.Error(err)
 		}
 
-		b := addr.ToLittleEndian()
+		b := memory.Address(params.Value).ToLittleEndian()
 		n.GetLine().SetData(0x20, b[0], b[1])
 	}
 
@@ -65,17 +65,17 @@ func branchOp(opCode byte, n *node.Node, ctx context.Context) error {
 		ctx.AddAddress(2)
 
 	case context.StageBackref:
-		addr, err := common.GetNodeAddress(n.Right, ctx)
+		params, err := GetAddressing(n, ctx, AMAddress)
 		if err != nil {
 			return n.Token.Pos.Error(err)
 		}
 
 		l := n.GetLine()
 		// TODO check this is correct
-		delta := int(addr) - int(l.Address)
+		delta := int(params.Value) - int(l.Address)
 		//log.Printf("Delta %d", delta)
 		if delta < -127 || delta > 127 {
-			return l.Pos.Errorf("Destination %q is %d bytes away, exceeding instruction")
+			return l.Pos.Errorf("Destination %q is %d bytes away, exceeding instruction", params.Value, delta)
 		}
 
 		n.GetLine().SetData(opCode, byte(delta))

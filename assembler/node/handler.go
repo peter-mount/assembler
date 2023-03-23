@@ -40,13 +40,17 @@ type Entry struct {
 func NewMap(entries ...Entry) *Map {
 	m := &Map{}
 	for _, e := range entries {
-		n := strings.ToLower(e.Name)
-		if _, exists := (*m)[n]; exists {
-			panic(fmt.Errorf("NodeHandlerMap already has %q registered", n))
-		}
-		(*m)[n] = e.Handler
+		m.AddEntry(e)
 	}
 	return m
+}
+
+func (m *Map) AddEntry(e Entry) {
+	n := strings.ToLower(e.Name)
+	if _, exists := (*m)[n]; exists {
+		panic(fmt.Errorf("NodeHandlerMap already has %q registered", n))
+	}
+	(*m)[n] = e.Handler
 }
 
 func (m *Map) ResolveToken(token *lexer.Token) (Handler, bool) {

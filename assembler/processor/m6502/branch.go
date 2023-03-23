@@ -1,10 +1,11 @@
-package instruction
+package m6502
 
 import (
 	"assembler/assembler/common"
 	"assembler/assembler/context"
 	"assembler/assembler/node"
 	"assembler/memory"
+	"strings"
 )
 
 func JSR(n *node.Node, ctx context.Context) error {
@@ -37,7 +38,25 @@ func JSR(n *node.Node, ctx context.Context) error {
 	return err
 }
 
+var branchOpcodes = map[string]byte{
+	"bcc": 0x90,
+	"bcs": 0xb0,
+	"beq": 0xf0,
+	"bne": 0xd0,
+	"bmi": 0x30,
+	"bpl": 0x10,
+	"bvc": 0x50,
+	"bvs": 0x70,
+}
+
 func Branch(n *node.Node, ctx context.Context) error {
+	// Resolve the opCode for this instruction
+	opName := strings.ToLower(n.Token.Text)
+	opCode, exists := branchOpcodes[opName]
+	if !exists {
+		return n.Token.Pos.Errorf("opcode %q not recognised", opName)
+	}
+
 	//log.Printf("Branch %d %q", n.Token.Token, n.Token.Text)
 	err := node.CallChildren(n, ctx)
 	if err == nil {
@@ -70,9 +89,7 @@ func Branch(n *node.Node, ctx context.Context) error {
 				return l.Pos.Errorf("Destination %q is %d bytes away, exceeding instruction")
 			}
 
-			// TODO lookup op code from n.Token.Text
-
-			n.GetLine().SetData(0x20, byte(delta))
+			n.GetLine().SetData(opCode, byte(delta))
 		}
 	}
 	return nil

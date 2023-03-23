@@ -1,4 +1,4 @@
-package instruction
+package m6502
 
 import (
 	"assembler/assembler/context"

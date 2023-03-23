@@ -3,7 +3,6 @@ package m6502
 import (
 	"assembler/assembler/context"
 	"assembler/assembler/node"
-	"assembler/memory"
 	"strings"
 )
 
@@ -18,11 +17,14 @@ func JSR(n *node.Node, ctx context.Context) error {
 	case context.StageBackref:
 		params, err := GetAddressing(n, ctx, AMAddress) // TODO AMAddressLong for JSL (JSR as alias)
 		if err != nil {
-			return n.Token.Pos.Error(err)
+			return err
 		}
 
-		b := memory.Address(params.Value).ToLittleEndian()
-		n.GetLine().SetData(0x20, b[0], b[1])
+		b, err := params.AddressMode.Opcode(0x20, params.Value)
+		if err != nil {
+			return err
+		}
+		n.GetLine().SetData(b...)
 	}
 
 	return err
@@ -74,7 +76,7 @@ func branchOp(opCode byte, n *node.Node, ctx context.Context) error {
 	case context.StageBackref:
 		params, err := GetAddressing(n, ctx, AMAddress, AMAddressLong)
 		if err != nil {
-			return n.Token.Pos.Error(err)
+			return err
 		}
 
 		l := n.GetLine()

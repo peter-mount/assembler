@@ -13,7 +13,7 @@ func JSR(n *node.Node, ctx context.Context) error {
 
 	case context.StageCompile:
 		// reserve 3 bytes
-		ctx.AddAddress(3)
+		n.GetLine().SetData(0, 0, 0)
 
 	case context.StageBackref:
 		params, err := GetAddressing(n, ctx, AMAddress)
@@ -62,7 +62,8 @@ func branchOp(opCode byte, n *node.Node, ctx context.Context) error {
 	switch ctx.GetStage() {
 
 	case context.StageCompile:
-		ctx.AddAddress(2)
+		// Reserve 2 bytes
+		n.GetLine().SetData(opCode, 0)
 
 	case context.StageBackref:
 		params, err := GetAddressing(n, ctx, AMAddress)

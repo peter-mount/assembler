@@ -15,6 +15,7 @@ type M6502 struct {
 func (p *M6502) PostInit() error {
 	NOP := SimpleInstruction(0xea)
 	p.instructions = node.NewMap(
+		node.Entry{Name: "BRK", Handler: BRK},
 		node.Entry{Name: "INX", Handler: SimpleInstruction(0xe8)},
 		node.Entry{Name: "INY", Handler: SimpleInstruction(0xc8)},
 		node.Entry{Name: "JSR", Handler: JSR},
@@ -22,6 +23,7 @@ func (p *M6502) PostInit() error {
 		node.Entry{Name: "LDX", Handler: NOP},
 		node.Entry{Name: "LDY", Handler: NOP},
 		node.Entry{Name: "NOP", Handler: NOP},
+		node.Entry{Name: "RTI", Handler: SimpleInstruction(0x40)},
 		node.Entry{Name: "RTS", Handler: SimpleInstruction(0x60)},
 	)
 

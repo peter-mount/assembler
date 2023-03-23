@@ -11,7 +11,6 @@ func DataBlock(b ...uint8) node.Handler {
 
 		case context.StageCompile:
 			n.GetLine().SetData(b...)
-			ctx.AddAddress(len(b))
 		}
 		return node.CallChildren(n, ctx)
 	}

@@ -12,8 +12,12 @@ func LineHandler(n *node.Node, ctx context.Context) error {
 
 	switch ctx.GetStage() {
 
-	case context.StageCompile:
+	case context.StageCompile, context.StageOptimise, context.StageBackref:
 		n.Line.Address = ctx.GetAddress()
+		if err := node.CallChildren(n, ctx); err != nil {
+			return err
+		}
+		ctx.AddAddress(len(n.Line.Data()))
 
 	case context.StageList:
 		log.Println(n.Line.String())

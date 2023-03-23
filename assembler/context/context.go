@@ -9,13 +9,14 @@ import (
 )
 
 const (
-	StageLex     Stage = iota // Load and lex the sources
-	StageParse                // Initial parsing stage
-	StageCompile              // Compile opcodes
-	StageBackref              // Resolve Back references
-	StageList                 // List compiled listing
-	StageSymbols              // List symbols
-	stageCount                // Must be last stage definition
+	StageLex      Stage = iota // Load and lex the sources
+	StageParse                 // Initial parsing stage
+	StageCompile               // Compile opcodes
+	StageOptimise              // Optimise stage to see if an instruction can be reduced in size
+	StageBackref               // Resolve Back references
+	StageList                  // List compiled listing
+	StageSymbols               // List symbols
+	stageCount                 // Must be last stage definition
 )
 
 type Stage int

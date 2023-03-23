@@ -37,7 +37,7 @@ func (l *Line) String() string {
 	}
 
 	s, h := "", ""
-	if l.Address > 0 {
+	if l.Address > 0 || len(l.data) > 0 || l.Label != "" {
 		s = fmt.Sprintf("%04x", l.Address)
 		for _, v := range l.data {
 			h = h + fmt.Sprintf("%02x ", v)

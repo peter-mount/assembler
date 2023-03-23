@@ -13,7 +13,7 @@ func SimpleInstruction(opCode ...uint8) node.Handler {
 
 		case context.StageCompile:
 			n.GetLine().SetData(opCode...)
-			ctx.AddAddress(1)
+			ctx.AddAddress(len(opCode))
 		}
 		return node.CallChildren(n, ctx)
 	}

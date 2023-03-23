@@ -18,9 +18,21 @@ func (p Position) String() string {
 }
 
 func (p Position) Errorf(s string, a ...interface{}) error {
-	return fmt.Errorf(p.String()+" "+s, a...)
+	return &errorString{s: fmt.Sprintf(p.String()+" "+s, a...)}
 }
 
 func (p Position) Error(err error) error {
-	return p.Errorf("%s", err.Error())
+	if err1, ok := err.(*errorString); ok {
+		return err1
+	}
+	return &errorString{s: fmt.Sprintf("%s %s", p.String(), err.Error())}
+}
+
+// errorString is a trivial implementation of error.
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
 }

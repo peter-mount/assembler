@@ -21,6 +21,7 @@ func LineHandler(n *node.Node, ctx context.Context) error {
 
 	case context.StageList:
 		log.Println(n.Line.String())
+		ctx.AddAddress(len(n.Line.Data()))
 
 	}
 

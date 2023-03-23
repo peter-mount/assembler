@@ -6,8 +6,8 @@
     ORG 0x2000
 
 .start
-    LDY #0
-.l1 LDA (text),Y
+    LDY #42
+.l1 LDA text,Y
     BEQ l2
     JSR &ffee
     INY

@@ -13,7 +13,10 @@ func CallChildren(n *Node, ctx context.Context) error {
 
 func (n *Node) Visit(ctx context.Context) error {
 	if n != nil && n.Handler != nil {
-		return n.Handler(n, ctx)
+		err := n.Handler(n, ctx)
+		if err != nil {
+			return n.Token.Pos.Error(err)
+		}
 	}
 	return nil
 }

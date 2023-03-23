@@ -16,7 +16,7 @@ func JSR(n *node.Node, ctx context.Context) error {
 		n.GetLine().SetData(0, 0, 0)
 
 	case context.StageBackref:
-		params, err := GetAddressing(n, ctx, AMAddress)
+		params, err := GetAddressing(n, ctx, AMAddress) // TODO AMAddressLong for JSL (JSR as alias)
 		if err != nil {
 			return n.Token.Pos.Error(err)
 		}
@@ -38,6 +38,12 @@ var branchOpcodes = map[string]byte{
 	"bpl": 0x10,
 	"bvc": 0x50,
 	"bvs": 0x70,
+}
+
+func addBranchOpcodes(m *node.Map) {
+	for k, _ := range branchOpcodes {
+		m.AddEntry(node.Entry{Name: k, Handler: Branch})
+	}
 }
 
 // Branch handles the 6502 conditional branch instructions.
@@ -66,7 +72,7 @@ func branchOp(opCode byte, n *node.Node, ctx context.Context) error {
 		n.GetLine().SetData(opCode, 0)
 
 	case context.StageBackref:
-		params, err := GetAddressing(n, ctx, AMAddress)
+		params, err := GetAddressing(n, ctx, AMAddress, AMAddressLong)
 		if err != nil {
 			return n.Token.Pos.Error(err)
 		}

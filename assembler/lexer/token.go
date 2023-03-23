@@ -31,14 +31,14 @@ type Token struct {
 func (t *Token) String() string {
 	if t == nil {
 		return "nil"
-	}
-	switch t.Token {
-	case TokenIdent:
-		return fmt.Sprintf("ident(%s)", t.Text)
-	case TokenInt, TokenFloat, TokenString:
-		return t.Text
-	case TokenChar:
-		return fmt.Sprintf("'%s'", t.Text)
-	}
+	} /*
+		switch t.Token {
+		case TokenIdent:
+			return fmt.Sprintf("ident(%s)", t.Text)
+		case TokenInt, TokenFloat, TokenString:
+			return t.Text
+		case TokenChar:
+			return fmt.Sprintf("'%s'", t.Text)
+		}*/
 	return fmt.Sprintf("Token[token=%d,text=%s]", t.Token, t.Text)
 }

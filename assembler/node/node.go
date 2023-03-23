@@ -2,6 +2,7 @@ package node
 
 import (
 	"assembler/assembler/lexer"
+	"strings"
 )
 
 type Node struct {
@@ -87,4 +88,37 @@ func (n *Node) AddAllRight(b ...*Node) {
 	for _, b1 := range b {
 		n.AddRight(b1)
 	}
+}
+
+func (n *Node) GetChildren() []*Node {
+	var r []*Node
+	cn := n
+	for cn != nil {
+		r = append(r, cn)
+		cn = cn.Right
+	}
+	return r
+}
+
+func (n *Node) GetTokenText() []string {
+	var r []string
+	cn := n
+	for cn != nil {
+		r = append(r, cn.Token.Text)
+		cn = cn.Right
+	}
+	return r
+}
+
+func MatchPattern(src []*Node, pat ...string) bool {
+	if len(src) != len(pat) {
+		return false
+	}
+
+	for i, s := range pat {
+		if s != "" && strings.ToLower(s) != strings.ToLower(src[i].Token.Text) {
+			return false
+		}
+	}
+	return true
 }

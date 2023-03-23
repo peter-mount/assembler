@@ -72,6 +72,8 @@ func (c *context) GetStage() Stage {
 func (c *context) ForEachStage(f func(Stage, Context) error) error {
 	for stage := StageLex; stage < stageCount; stage++ {
 		c.stage = stage
+		c.orgAddress = 0
+		c.address = 0
 		c.ClearStack()
 		if err := f(stage, c); err != nil {
 			return err

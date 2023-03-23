@@ -38,15 +38,14 @@ func BRK(n *node.Node, ctx context.Context) error {
 
 	// StageOptimise to see which form we are using
 	case context.StageOptimise, context.StageBackref:
-		params, err := GetAddressing(n, ctx, AMImplied, AMAddress, AMImmediate)
+		params, err := GetAddressing(n, ctx, AMImplied, AMZeroPage, AMImmediate)
 		if err != nil {
 			return n.Token.Pos.Error(err)
 		}
 
-		switch params.AddressMode {
-		case AMImplied:
+		if params.AddressMode == AMImplied {
 			n.GetLine().SetData(0x00)
-		case AMAddress, AMImmediate:
+		} else {
 			n.GetLine().SetData(0x00, byte(params.Value&0xff))
 		}
 	}
@@ -64,7 +63,7 @@ func COP(n *node.Node, ctx context.Context) error {
 
 	case context.StageBackref:
 		// COP const - but we'll accept COP #value as well
-		params, err := GetAddressing(n, ctx, AMAddress, AMImmediate)
+		params, err := GetAddressing(n, ctx, AMImplied, AMZeroPage, AMImmediate)
 		if err != nil {
 			return n.Token.Pos.Error(err)
 		}

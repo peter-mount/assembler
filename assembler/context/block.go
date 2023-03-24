@@ -30,11 +30,3 @@ func (b *Block) Write(d []byte) (int, error) {
 	}
 	return b.buffer.Write(d)
 }
-
-func BlocksEquals(a, b []*Block) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	return true
-}

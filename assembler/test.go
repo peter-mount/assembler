@@ -2,6 +2,7 @@ package assembler
 
 import (
 	"assembler/assembler/context"
+	"assembler/assembler/lexer"
 	"assembler/assembler/parser"
 	"bytes"
 	"fmt"
@@ -15,6 +16,7 @@ type TestScript struct {
 	Name     string           // Optional name of step
 	Src      []string         // Text of lines to assemble
 	Expected []*context.Block // Expected output from assembler
+	Error    func(error) bool // Optional test if expecting an error
 }
 
 func RunTestScript(test string, t *testing.T, assembler *Assembler, scripts ...TestScript) {
@@ -25,7 +27,7 @@ func RunTestScript(test string, t *testing.T, assembler *Assembler, scripts ...T
 		}
 		t.Run(fmt.Sprintf("%s_%d", n, sid), func(t *testing.T) {
 			if err := runTestScript(t, assembler, script); err != nil {
-				panic(err)
+				t.Error(err)
 			}
 		})
 	}
@@ -46,7 +48,23 @@ func runTestScript(t *testing.T, assembler *Assembler, script TestScript) error 
 	defer os.Remove(tmpName)
 
 	if err := assembler.Assemble(tmpName); err != nil {
+		if script.Error != nil {
+			// If a Positioned Error then get the original cause
+			err = lexer.GetCause(err)
+
+			// Check against test definition
+			if script.Error(err) {
+				return nil
+			}
+
+			t.Errorf("Unexpected error %v", err)
+		}
 		return err
+	}
+
+	if script.Error != nil {
+		t.Errorf("Expected error, got none")
+		return nil
 	}
 
 	blocks := assembler.Blocks()
@@ -71,10 +89,17 @@ func runTestScript(t *testing.T, assembler *Assembler, script TestScript) error 
 	return nil
 }
 
-func NewAssembler(processors ...kernel.PostInitialisableService) (*Assembler, error) {
+func NewAssembler(processors ...interface{}) (*Assembler, error) {
 	for _, proc := range processors {
-		if err := proc.PostInit(); err != nil {
-			return nil, err
+		if s, ok := proc.(kernel.PostInitialisableService); ok {
+			if err := s.PostInit(); err != nil {
+				return nil, err
+			}
+		}
+		if s, ok := proc.(kernel.StartableService); ok {
+			if err := s.Start(); err != nil {
+				return nil, err
+			}
 		}
 	}
 

@@ -74,7 +74,7 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 	command := strings.ToLower(token.Text)
 	switch {
 	case command == "cpu" && len(tokens) > 0:
-		p.processor = p.ProcessorRegistry.Lookup(tokens[0].Text)
+		p.processor = Lookup(tokens[0].Text)
 		if p.processor == nil {
 			return nil, token.Pos.Errorf("unsupported processor %q", tokens[0].Text)
 		}

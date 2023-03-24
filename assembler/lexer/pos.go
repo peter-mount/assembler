@@ -18,21 +18,43 @@ func (p Position) String() string {
 }
 
 func (p Position) Errorf(s string, a ...interface{}) error {
-	return &errorString{s: fmt.Sprintf(p.String()+" "+s, a...)}
+	return &Error{s: fmt.Sprintf(p.String()+" "+s, a...)}
 }
 
 func (p Position) Error(err error) error {
-	if err1, ok := err.(*errorString); ok {
+	if err1, ok := err.(*Error); ok {
 		return err1
 	}
-	return &errorString{s: fmt.Sprintf("%s %s", p.String(), err.Error())}
+	return &Error{s: fmt.Sprintf("%s %s", p.String(), err.Error()), e: err}
 }
 
-// errorString is a trivial implementation of error.
-type errorString struct {
+// Error is a trivial implementation of error.
+type Error struct {
 	s string
+	e error
 }
 
-func (e *errorString) Error() string {
+func (e *Error) Error() string {
 	return e.s
+}
+
+func (e *Error) HasCause() bool {
+	return e.e != nil
+}
+
+func (e *Error) Cause() error {
+	return e.e
+}
+
+func IsError(err error) bool {
+	_, ok := err.(*Error)
+	return ok
+}
+
+// GetCause gets the first cause that's not a positioned Error
+func GetCause(err error) error {
+	if err1, ok := err.(*Error); ok {
+		return GetCause(err1.Cause())
+	}
+	return err
 }

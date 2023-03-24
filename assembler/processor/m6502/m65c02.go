@@ -10,7 +10,7 @@ import (
 // 65c02 specific instructions. If an instruction is not defined here
 // it then passes it to the 6502 Processor for the common instructions.
 type M65c02 struct {
-	M6502        *M6502 `'kernel:"inject"`
+	M6502        parser.Processor
 	instructions *node.Map
 }
 
@@ -20,6 +20,11 @@ func (p *M65c02) PostInit() error {
 	)
 
 	parser.Register(p)
+	return nil
+}
+
+func (p *M65c02) Start() error {
+	p.M6502 = parser.Lookup("6502")
 	return nil
 }
 

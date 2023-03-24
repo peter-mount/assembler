@@ -27,7 +27,7 @@ type Context interface {
 	// GetStage returns the current assembly Stage
 	GetStage() Stage
 	// ForEachStage calls a function once for each possible Stage
-	ForEachStage(func(Stage, Context) error) error
+	ForEachStage(StageVisitor) error
 
 	// GetLabel returns the Line that contains the given label
 	GetLabel(n string) *lexer.Line
@@ -58,6 +58,8 @@ type Context interface {
 	GetAllBlocks() []*Block
 }
 
+type StageVisitor func(Stage, Context) error
+
 type context struct {
 	labels     map[string]*lexer.Line
 	stage      Stage
@@ -78,7 +80,7 @@ func (c *context) GetStage() Stage {
 	return c.stage
 }
 
-func (c *context) ForEachStage(f func(Stage, Context) error) error {
+func (c *context) ForEachStage(f StageVisitor) error {
 	for stage := StageLex; stage < stageCount; stage++ {
 		c.stage = stage
 		c.orgAddress = 0

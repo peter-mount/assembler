@@ -16,6 +16,10 @@ func Register(p Processor) {
 	processors[n] = p
 }
 
+func Lookup(n string) Processor {
+	return processors[strings.ToLower(n)]
+}
+
 type ProcessorRegistry struct{}
 
 func (p *ProcessorRegistry) Start() error {
@@ -30,8 +34,4 @@ func (p *ProcessorRegistry) Start() error {
 		log.Printf("CPUs: %s", strings.Join(a, ", "))
 	}
 	return nil
-}
-
-func (p *ProcessorRegistry) Lookup(n string) Processor {
-	return processors[strings.ToLower(n)]
 }

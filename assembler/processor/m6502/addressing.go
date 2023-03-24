@@ -5,9 +5,18 @@ import (
 	"assembler/assembler/context"
 	"assembler/assembler/errors"
 	"assembler/assembler/node"
+	"fmt"
 )
 
 type AddressMode uint8
+
+func (am AddressMode) String() string {
+	i := int(am)
+	if i > len(amNames) {
+		i = 0
+	}
+	return amNames[i]
+}
 
 // Acceptable returns true if it matches one of the provided parameters
 func (am AddressMode) Acceptable(accepts ...AddressMode) bool {
@@ -74,29 +83,49 @@ func (am AddressMode) Opcode(opcode byte, val uint) ([]byte, error) {
 
 // The detected addressing modes.
 const (
-	AMUnknown              AddressMode = iota // Holder to represent an unknown AddressMode
-	AMImplied                                 // No argument, also represents stack
-	AMImmediate                               // #0x12			8-bit value
-	AMAddress                                 // 0x1234			16-bit address, 0x0100-0xffff inclusive. Values <0x0100 appear as AMZeroPage
-	AMZeroPage                                // 0x12			Zero page address, e.g. 0..ff inclusive
-	AMAddressLong                             // 0x123456		Long addresses, values 0x10000 and up
-	AMAbsoluteIndexedX                        // 0x1234,X 		Absolute Indexed X
-	AMAbsoluteIndexedY                        // 0x1234,Y 		Absolute Indexed X
-	AMZeroPageIndirect                        // (0x12)			65c02 only
-	AMZeroPageIndirectX                       // (0x12,X)   		Direct Page Indexed X
-	AMZeroPageIndirectY                       // (0x12),Y 		Direct page Index Y
-	AMZeroPageIndexedX                        // 0x12,X   		Direct Page Indexed X
-	AMZeroPageIndexedY                        // 0x12,Y 		Direct page Index Y
-	AMZeroPageIndirectLong                    // [$12]			65816 only
-
-	AMAccumulator             // ASL A
-	AMAbsoluteIndexedIndirect // (0x1234,X)		65816 only
-	AMBlockMove               // source, dest	65816 only, consists of Address ',' Address
+	AMUnknown                 AddressMode = iota // Holder to represent an unknown AddressMode
+	AMImplied                                    // No argument, also represents stack
+	AMImmediate                                  // #0x12			8-bit value
+	AMAddress                                    // 0x1234			16-bit address, 0x0100-0xffff inclusive. Values <0x0100 appear as AMZeroPage
+	AMZeroPage                                   // 0x12			Zero page address, e.g. 0..ff inclusive
+	AMAddressLong                                // 0x123456		Long addresses, values 0x10000 and up
+	AMAbsoluteIndexedX                           // 0x1234,X 		Absolute Indexed X
+	AMAbsoluteIndexedY                           // 0x1234,Y 		Absolute Indexed X
+	AMZeroPageIndirect                           // (0x12)			65c02 only
+	AMZeroPageIndirectX                          // (0x12,X)   		Direct Page Indexed X
+	AMZeroPageIndirectY                          // (0x12),Y 		Direct page Index Y
+	AMZeroPageIndexedX                           // 0x12,X   		Direct Page Indexed X
+	AMZeroPageIndexedY                           // 0x12,Y 		Direct page Index Y
+	AMZeroPageIndirectLong                       // [$12]			65816 only
+	AMAccumulator                                // ASL A
+	AMAbsoluteIndexedIndirect                    // (0x1234,X)		65816 only
+	AMBlockMove                                  // source, dest	65816 only, consists of Address ',' Address
+	amEndMarker                                  // must be last, used in tests to identify how many are defined
 )
 
 var (
 	// The 3 address modes that are parsed together, in order of precedence if multiple ones are acceptable
 	addressAddressModes = []AddressMode{AMAddressLong, AMAddress, AMZeroPage}
+	// The order here must match the constants
+	amNames = []string{
+		"AMUnknown",
+		"AMImplied",
+		"AMImmediate",
+		"AMAddress",
+		"AMZeroPage",
+		"AMAddressLong",
+		"AMAbsoluteIndexedX",
+		"AMAbsoluteIndexedY",
+		"AMZeroPageIndirect",
+		"AMZeroPageIndirectX",
+		"AMZeroPageIndirectY",
+		"AMZeroPageIndexedX",
+		"AMZeroPageIndexedY",
+		"AMZeroPageIndirectLong",
+		"AMAccumulator",
+		"AMAbsoluteIndexedIndirect",
+		"AMBlockMove",
+	}
 )
 
 // Addressing is the parsed result from handling
@@ -132,7 +161,7 @@ func GetAddressing(n *node.Node, ctx context.Context, accept ...AddressMode) (Ad
 
 	// (addr)
 	case node.MatchPattern(children, "(", "", ")"):
-		err = addr.getInt(children, 1, AMZeroPageIndirectY, ctx)
+		err = addr.getInt(children, 1, AMZeroPageIndirect, ctx)
 
 	// (addr),X
 	case node.MatchPattern(children, "(", "", ",", "X", ")"):
@@ -181,4 +210,31 @@ func (addr *Addressing) getInt(children []*node.Node, index int, am AddressMode,
 		addr.Value = uint(i)
 	}
 	return err
+}
+
+func (addr *Addressing) String() string {
+	if addr == nil {
+		return "nil"
+	}
+	switch addr.AddressMode {
+	case AMUnknown, AMImplied:
+		return ""
+	case AMImmediate:
+		return fmt.Sprintf("#%x", addr.Value)
+	case AMAddress, AMAddressLong, AMZeroPage:
+		return fmt.Sprintf("%x", addr.Value)
+	case AMAbsoluteIndexedX:
+		return fmt.Sprintf("%x,X", addr.Value)
+	case AMAbsoluteIndexedY:
+		return fmt.Sprintf("%x,Y", addr.Value)
+	case AMZeroPageIndirect:
+		return fmt.Sprintf("(%x)", addr.Value)
+	case AMZeroPageIndirectX:
+		return fmt.Sprintf("(%x,X)", addr.Value)
+	case AMZeroPageIndirectY:
+		return fmt.Sprintf("(%x),Y", addr.Value)
+	default:
+		// FIXME catch all if we don't implement
+		return fmt.Sprintf("?? %x ??", addr.Value)
+	}
 }

@@ -98,7 +98,7 @@ func (l *Lexer) tokenizeLine(line *Line) error {
 		line.Line = strings.Join(text, " ")
 	}
 
-	// Add line to Lexer
+	// Handle line to Lexer
 	l.lines = append(l.lines, line)
 	return nil
 }

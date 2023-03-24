@@ -8,7 +8,7 @@ import (
 
 func TestJSR(t *testing.T) {
 
-	asm, err := assembler.NewAssembler(&M6502{})
+	asm, err := assembler.NewAssembler(M65C02())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestJSR(t *testing.T) {
 
 func TestBranch(t *testing.T) {
 
-	asm, err := assembler.NewAssembler(&M6502{})
+	asm, err := assembler.NewAssembler(M6502())
 	if err != nil {
 		t.Fatal(err)
 	}

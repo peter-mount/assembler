@@ -1,4 +1,4 @@
-package m6502
+package processor
 
 import (
 	"assembler/assembler/context"
@@ -10,7 +10,6 @@ import (
 func SimpleInstruction(opCode ...uint8) node.Handler {
 	return func(n *node.Node, ctx context.Context) error {
 		switch ctx.GetStage() {
-
 		case context.StageCompile:
 			n.GetLine().SetData(opCode...)
 		}

@@ -3,6 +3,7 @@ package m6502
 import (
 	"assembler/assembler/context"
 	"assembler/assembler/node"
+	"assembler/processor"
 	"strings"
 )
 
@@ -42,9 +43,9 @@ var branchOpcodes = map[string]byte{
 	"bvs": 0x70,
 }
 
-func addBranchOpcodes(m *node.Map) {
+func addBranchOpcodes(b processor.Builder) {
 	for k, _ := range branchOpcodes {
-		m.AddEntry(node.Entry{Name: k, Handler: Branch})
+		b.Handle(k, Branch)
 	}
 }
 

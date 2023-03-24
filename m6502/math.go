@@ -41,11 +41,12 @@ func adc(addressModes ...AddressMode) node.Handler {
 
 			case AMZeroPage:
 				n.GetLine().SetData(adcAddressZeroPage, byte(params.Value&0xff))
+
 			case AMAddress:
 				n.GetLine().SetData(adcAddress, byte(params.Value&0xff), byte((params.Value>>8)&0xff))
-			//case AMAddressLong:
-			// TODO uncomment when we support the 65816
-			//	n.GetLine().SetData(adcAddressLong, byte(params.Value&0xff), byte((params.Value>>8)&0xff), byte((params.Value>>16)&0xff))
+
+			case AMAddressLong:
+				n.GetLine().SetData(adcAddressLong, byte(params.Value&0xff), byte((params.Value>>8)&0xff), byte((params.Value>>16)&0xff))
 
 			case AMZeroPageIndirect:
 				n.GetLine().SetData(adcAddressZeroPageIndirect, byte(params.Value))

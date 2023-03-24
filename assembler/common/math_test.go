@@ -19,7 +19,7 @@ func TestGetNodeAddress(t *testing.T) {
 		want    memory.Address
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		// TODO: Handle test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -46,7 +46,7 @@ func TestGetNodeInt(t *testing.T) {
 		want    int64
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		// TODO: Handle test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -73,7 +73,7 @@ func TestGetNodeInterface(t *testing.T) {
 		want    interface{}
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		// TODO: Handle test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -99,7 +99,7 @@ func TestToAddr(t *testing.T) {
 		want    memory.Address
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		// TODO: Handle test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

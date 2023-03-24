@@ -8,7 +8,7 @@ import (
 
 func TestBRK(t *testing.T) {
 
-	asm, err := assembler.NewAssembler(&M6502{})
+	asm, err := assembler.NewAssembler(M6502())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func TestBRK(t *testing.T) {
 
 func TestCOP(t *testing.T) {
 
-	asm, err := assembler.NewAssembler(&M65816{})
+	asm, err := assembler.NewAssembler(M65816())
 	if err != nil {
 		t.Fatal(err)
 	}

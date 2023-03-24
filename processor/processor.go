@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"assembler/assembler/errors"
 	"assembler/assembler/lexer"
 	"assembler/assembler/node"
 )
@@ -11,4 +12,26 @@ type Processor interface {
 
 	// Parse parses an operation
 	Parse(token *lexer.Token, tokens []*lexer.Token) (*node.Node, error)
+}
+
+type processor struct {
+	name         string
+	instructions *node.Map
+	parent       Processor
+}
+
+func (p *processor) ProcessorName() string {
+	return p.name
+}
+
+func (p *processor) Parse(token *lexer.Token, tokens []*lexer.Token) (*node.Node, error) {
+	if h, resolved := p.instructions.ResolveToken(token); resolved {
+		return node.NewWithHandler(token, h), nil
+	}
+
+	if p.parent != nil {
+		return p.parent.Parse(token, tokens)
+	}
+
+	return nil, errors.UnsupportedError(token.Text)
 }

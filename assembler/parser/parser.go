@@ -14,7 +14,7 @@ import (
 
 // Parser takes the tokenized lines and forms a series of AST trees
 type Parser struct {
-	ProcessorRegistry *processor2.ProcessorRegistry
+	ProcessorRegistry *processor2.Registry
 	root              *node.Node
 	machine           *machine.Machine
 	org               memory.Address

@@ -9,7 +9,7 @@ import (
 
 func TestADC(t *testing.T) {
 
-	asm, err := assembler.NewAssembler(&M6502{}, &M65c02{}, &M65816{})
+	asm, err := assembler.NewAssembler(M6502(), M65C02(), M65816())
 	if err != nil {
 		t.Fatal(err)
 	}

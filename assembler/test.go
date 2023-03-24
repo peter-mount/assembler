@@ -103,6 +103,6 @@ func NewAssembler(processors ...interface{}) (*Assembler, error) {
 		}
 	}
 
-	assembler := &Assembler{ProcessorRegistry: &processor.ProcessorRegistry{}}
+	assembler := &Assembler{ProcessorRegistry: &processor.Registry{}}
 	return assembler, nil
 }

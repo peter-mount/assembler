@@ -16,15 +16,15 @@ import (
 
 // Service handles the actual assembly of one or more source projects
 type Service struct {
-	ProcessorRegistry *processor.ProcessorRegistry `kernel:"inject"`
-	ShowAssembly      *bool                        `kernel:"flag,show-assembly,Show assembly"`
-	ShowSymbols       *bool                        `kernel:"flag,show-symbols,Show symbols"`
-	ShowTimings       *bool                        `kernel:"flag,show-stage-timings,Show stage timings"`
+	ProcessorRegistry *processor.Registry `kernel:"inject"`
+	ShowAssembly      *bool               `kernel:"flag,show-assembly,Show assembly"`
+	ShowSymbols       *bool               `kernel:"flag,show-symbols,Show symbols"`
+	ShowTimings       *bool               `kernel:"flag,show-stage-timings,Show stage timings"`
 }
 
 // Assembler holds the state during a single project's assembly
 type Assembler struct {
-	ProcessorRegistry *processor.ProcessorRegistry
+	ProcessorRegistry *processor.Registry
 	lexer             *lexer.Lexer
 	parser            *parser.Parser
 	root              *node.Node

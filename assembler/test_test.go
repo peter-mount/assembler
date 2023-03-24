@@ -10,7 +10,7 @@ import (
 func TestRunTestScript(t *testing.T) {
 
 	// Create an inline assembler
-	asm, err := NewAssembler(&m6502.M6502{})
+	asm, err := NewAssembler(m6502.M6502())
 	if err != nil {
 		t.Fatal(err)
 	}

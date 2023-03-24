@@ -4,6 +4,7 @@ import (
 	"assembler/assembler/context"
 	"assembler/assembler/errors"
 	"assembler/assembler/node"
+	"assembler/processor"
 )
 
 type ldOpcode struct {
@@ -39,11 +40,14 @@ var ldOpcodes6502 = []*ldOpcode{
 	}},
 }
 
-func addRegisterInstructions(m *node.Map, defs []*ldOpcode) {
-	for _, def := range defs {
-		m.AddEntry(node.Entry{Name: def.name, Handler: ld(def)})
+func addRegisterInstructions(defs []*ldOpcode) processor.BuilderInclude {
+	return func(b processor.Builder) {
+		for _, def := range defs {
+			b.Handle(def.name, ld(def))
+		}
 	}
 }
+
 func ld(def *ldOpcode) node.Handler {
 	// Slice used to pass to GetAddressing for the valid addressing modes
 	// for this instruction

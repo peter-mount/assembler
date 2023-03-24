@@ -3,14 +3,14 @@ package m6502
 import (
 	"assembler/assembler/lexer"
 	"assembler/assembler/node"
-	"assembler/assembler/parser"
+	"assembler/processor"
 )
 
 // M65816 implements the 16-bit 65816 processor by providing handlers for
 // 65816 specific instructions. If an instruction is not defined here
 // it then passes it to the 65c02 Processor for the common instructions.
 type M65816 struct {
-	M65c02       parser.Processor
+	M65c02       processor.Processor
 	instructions *node.Map
 }
 
@@ -24,12 +24,12 @@ func (p *M65816) PostInit() error {
 		node.Entry{Name: "XCE", Handler: SimpleInstruction(0xfb)},
 	)
 
-	parser.Register(p)
+	processor.Register(p)
 	return nil
 }
 
 func (p *M65816) Start() error {
-	p.M65c02 = parser.Lookup("65c02")
+	p.M65c02 = processor.Lookup("65c02")
 	return nil
 }
 

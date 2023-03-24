@@ -6,6 +6,7 @@ import (
 	"assembler/assembler/node"
 	"assembler/machine"
 	"assembler/memory"
+	processor2 "assembler/processor"
 	"assembler/util"
 	"fmt"
 	"strings"
@@ -13,11 +14,11 @@ import (
 
 // Parser takes the tokenized lines and forms a series of AST trees
 type Parser struct {
-	ProcessorRegistry *ProcessorRegistry
+	ProcessorRegistry *processor2.ProcessorRegistry
 	root              *node.Node
 	machine           *machine.Machine
 	org               memory.Address
-	processor         Processor
+	processor         processor2.Processor
 }
 
 func (p *Parser) Parse(lines []*lexer.Line) (*node.Node, error) {
@@ -74,7 +75,7 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 	command := strings.ToLower(token.Text)
 	switch {
 	case command == "cpu" && len(tokens) > 0:
-		p.processor = Lookup(tokens[0].Text)
+		p.processor = processor2.Lookup(tokens[0].Text)
 		if p.processor == nil {
 			return nil, token.Pos.Errorf("unsupported processor %q", tokens[0].Text)
 		}

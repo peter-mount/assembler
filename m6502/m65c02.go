@@ -3,14 +3,14 @@ package m6502
 import (
 	"assembler/assembler/lexer"
 	"assembler/assembler/node"
-	"assembler/assembler/parser"
+	"assembler/processor"
 )
 
 // M65c02 implements the 65c02 processor by providing handlers for
 // 65c02 specific instructions. If an instruction is not defined here
 // it then passes it to the 6502 Processor for the common instructions.
 type M65c02 struct {
-	M6502        parser.Processor
+	M6502        processor.Processor
 	instructions *node.Map
 }
 
@@ -19,12 +19,12 @@ func (p *M65c02) PostInit() error {
 		node.Entry{Name: "BRA", Handler: BranchAlways},
 	)
 
-	parser.Register(p)
+	processor.Register(p)
 	return nil
 }
 
 func (p *M65c02) Start() error {
-	p.M6502 = parser.Lookup("6502")
+	p.M6502 = processor.Lookup("6502")
 	return nil
 }
 

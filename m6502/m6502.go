@@ -3,7 +3,7 @@ package m6502
 import (
 	"assembler/assembler/lexer"
 	"assembler/assembler/node"
-	"assembler/assembler/parser"
+	"assembler/processor"
 )
 
 // M6502 implements the 6502 processor.
@@ -28,7 +28,7 @@ func (p *M6502) PostInit() error {
 	addBranchOpcodes(p.instructions)
 	addRegisterInstructions(p.instructions, ldOpcodes6502)
 
-	parser.Register(p)
+	processor.Register(p)
 	return nil
 }
 

@@ -1,4 +1,4 @@
-package parser
+package processor
 
 import (
 	"github.com/peter-mount/go-kernel/v2/log"

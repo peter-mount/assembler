@@ -3,7 +3,7 @@ package assembler
 import (
 	"assembler/assembler/context"
 	"assembler/assembler/lexer"
-	"assembler/assembler/parser"
+	"assembler/processor"
 	"bytes"
 	"fmt"
 	"github.com/peter-mount/go-kernel/v2"
@@ -103,6 +103,6 @@ func NewAssembler(processors ...interface{}) (*Assembler, error) {
 		}
 	}
 
-	assembler := &Assembler{ProcessorRegistry: &parser.ProcessorRegistry{}}
+	assembler := &Assembler{ProcessorRegistry: &processor.ProcessorRegistry{}}
 	return assembler, nil
 }

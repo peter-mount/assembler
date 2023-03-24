@@ -4,8 +4,9 @@ import (
 	common "assembler"
 	"assembler/assembler"
 	_ "assembler/m6502"
+	"fmt"
 	"github.com/peter-mount/go-kernel/v2"
-	"log"
+	"os"
 )
 
 func main() {
@@ -13,6 +14,6 @@ func main() {
 		&common.VersionService{},
 		&assembler.Service{},
 	); err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
 	}
 }

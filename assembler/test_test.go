@@ -2,7 +2,7 @@ package assembler
 
 import (
 	"assembler/assembler/context"
-	"assembler/assembler/processor/m6502"
+	"assembler/m6502"
 	"testing"
 )
 

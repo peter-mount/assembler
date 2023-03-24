@@ -3,7 +3,7 @@ package main
 import (
 	common "assembler"
 	"assembler/assembler"
-	_ "assembler/assembler/processor/m6502"
+	_ "assembler/m6502"
 	"assembler/machine"
 	"github.com/peter-mount/go-kernel/v2"
 	"log"

@@ -36,6 +36,7 @@ func (b *builder) Handle(name string, handler node.Handler) Builder {
 func (b *builder) Simple(name string, bytes ...byte) Builder {
 	return b.Handle(name, SimpleInstruction(bytes...))
 }
+
 func (b *builder) AddEntry(entries ...node.Entry) Builder {
 	for _, entry := range entries {
 		b.instructions.AddEntry(entry)

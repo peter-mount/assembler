@@ -6,7 +6,6 @@ import (
 	"assembler/assembler/node"
 	"assembler/memory"
 	processor2 "assembler/processor"
-	"assembler/util"
 	"fmt"
 	"strings"
 )
@@ -79,16 +78,25 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 		}
 		return nil, nil
 
-	case command == "machine":
-		return nil, nil
-
-	case command == "org":
+	case command == "org" && len(tokens) > 0:
 		cn := node.NewWithHandler(token, common.OrgHandler)
 		cn.AddAllRightTokens(tokens...)
 		return cn, nil
 
 	case command == "equb", command == "equs":
-		return p.parseEqub(token, tokens)
+		cn := node.NewWithHandler(token, common.Equb)
+		cn.AddAllRightTokens(tokens...)
+		return cn, nil
+
+	case command == "equw":
+		cn := node.NewWithHandler(token, common.EquW)
+		cn.AddAllRightTokens(tokens...)
+		return cn, nil
+
+	case command == "equl":
+		cn := node.NewWithHandler(token, common.EquL)
+		cn.AddAllRightTokens(tokens...)
+		return cn, nil
 
 	default:
 		if p.processor == nil {
@@ -107,47 +115,4 @@ func (p *Parser) parseOperand(token *lexer.Token, tokens []*lexer.Token) (*node.
 	}
 
 	return nil, token.Pos.Errorf("Unsupported operand %q", token.Text)
-}
-
-func (p *Parser) parseEqub(tok *lexer.Token, tokens []*lexer.Token) (*node.Node, error) {
-	var b []byte
-	for _, token := range tokens {
-		switch token.Token {
-
-		// Strings are just appended as-is
-		case lexer.TokenString, lexer.TokenRawString:
-			b = append(b, token.Text...)
-
-		// Integers
-		case lexer.TokenInt:
-			a, err := util.Atoi(token.Text)
-			if err != nil {
-				return nil, err
-			}
-			// TODO lookahead for ';' separator, if present then a 16-bit integer not 8-bit
-
-			// Handle negative values
-			if a < 0 {
-				a = a + 255
-			}
-
-			// Validate range, TODO handle 16-bit here as well
-			if a < 0 || a > 255 {
-				return nil, fmt.Errorf("%q is not a byte", token.Text)
-			}
-
-			b = append(b, byte(a))
-
-		// TODO If TokenIdent then do a variable/label lookup here
-
-		// Ignore valid value separators
-		case ',', ';':
-
-		default:
-			return nil, token.Pos.Errorf("unsupported token %q", token.Text)
-		}
-	}
-
-	tok.Token = lexer.TokenData
-	return node.NewWithHandler(tok, common.DataBlock(b...)), nil
 }

@@ -4,7 +4,6 @@ import (
 	"assembler/assembler/common"
 	"assembler/assembler/lexer"
 	"assembler/assembler/node"
-	"assembler/machine"
 	"assembler/memory"
 	processor2 "assembler/processor"
 	"assembler/util"
@@ -16,7 +15,6 @@ import (
 type Parser struct {
 	ProcessorRegistry *processor2.Registry
 	root              *node.Node
-	machine           *machine.Machine
 	org               memory.Address
 	processor         processor2.Processor
 }

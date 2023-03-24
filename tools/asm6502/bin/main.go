@@ -13,7 +13,7 @@ func main() {
 	if err := kernel.Launch(
 		&common.VersionService{},
 		&machine.Service{},
-		&assembler.Assembler{},
+		&assembler.Service{},
 	); err != nil {
 		log.Fatal(err)
 	}

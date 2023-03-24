@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"github.com/peter-mount/go-kernel/v2/log"
 	"sort"
 	"strings"
@@ -11,9 +10,9 @@ var processors = make(map[string]Processor)
 
 func Register(p Processor) {
 	n := strings.ToLower(p.ProcessorName())
-	if _, exists := processors[n]; exists {
-		panic(fmt.Errorf("processor %q already registered", n))
-	}
+	//if _, exists := processors[n]; exists {
+	//	panic(fmt.Errorf("processor %q already registered", n))
+	//}
 	processors[n] = p
 }
 

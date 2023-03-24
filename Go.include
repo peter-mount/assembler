@@ -19,7 +19,7 @@ GO-BUILD	= $(call cmd,"GO BUILD","$(subst /, ,$(call GO-ARCH-DIR,$1)) $(shell ba
 GO-CLEAN	= $(call cmd,"GO CLEAN",$1);go clean $1
 GO-MOD		= $(call cmd,"GO MOD",$1);go mod $1
 
-# Append -test.v to GO_TEST to show status of each test.
+# Append -test.v to "go test" to show status of each test.
 # Without it, only shows total time per module if they pass
 GO-TEST		= $(GO_TEST)$(call cmd,"GO TEST",$1);(cd $1;go test ./...)
 
@@ -32,7 +32,7 @@ go-init: validate-go-version resolve-platforms
 .PHONY: go-test
 go-test:
 	@mkdir -p $(BUILDS)
-	$(call cmd,"GO TEST",$(BUILDS)/go-test.txt);go test ./... >$(BUILDS)/go-test.txt 2>&1 || cat $(BUILDS)/go-test.txt
+	$(call cmd,"GO TEST",$(BUILDS)/go-test.txt);go test -test.v ./... >$(BUILDS)/go-test.txt 2>&1 || cat $(BUILDS)/go-test.txt
 
 # Rule to build a go application
 # For this to work: the main function is in tools/<toolName>/bin/main.go

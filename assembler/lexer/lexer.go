@@ -50,3 +50,16 @@ func (l *Lexer) ForEach(h func(*Line) error) error {
 	}
 	return nil
 }
+
+func (l *Lexer) ParseLines(script []string) error {
+	for si, s := range script {
+		line := &Line{
+			Pos:  Position{File: &File{fileName: "unittest"}, Line: si + 1, Pos: -1},
+			Line: s,
+		}
+		if err := l.tokenizeLine(line); err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -9,14 +9,16 @@ import (
 )
 
 const (
-	StageLex      Stage = iota // Load and lex the sources
+	StageInit     Stage = iota // Initialisation of the Assembler
+	StageLex                   // Load and lex the sources
 	StageParse                 // Initial parsing stage
 	StageCompile               // Compile opcodes
 	StageOptimise              // Optimise stage to see if an instruction can be reduced in size
 	StageBackref               // Resolve Back references
 	StageList                  // List compiled listing
 	StageSymbols               // List symbols
-	stageCount                 // Must be last stage definition
+	StageAssemble              // Assembles each block
+	stageCount                 // Must be last entry, not a real stage, used in ForEachStage()
 )
 
 type Stage int
@@ -49,14 +51,21 @@ type Context interface {
 	Push(interface{})
 	// Pop a value from the value stack
 	Pop() (interface{}, error)
+
+	ClearBlocks()
+	StartBlock(memory.Address)
+	GetCurrentBlock() *Block
+	GetAllBlocks() []*Block
 }
 
 type context struct {
 	labels     map[string]*lexer.Line
 	stage      Stage
-	orgAddress memory.Address
-	address    memory.Address
-	stack      []interface{}
+	orgAddress memory.Address // Address provided to last ORG statement
+	address    memory.Address // Current assembly address
+	stack      []interface{}  // Value stack
+	curBlock   *Block         // Current block
+	blocks     []*Block       // Compiled blocks
 }
 
 func New() Context {
@@ -132,3 +141,14 @@ func (c *context) Pop() (interface{}, error) {
 		return v, nil
 	}
 }
+
+func (c *context) ClearBlocks() {
+	c.curBlock = nil
+	c.blocks = nil
+}
+func (c *context) StartBlock(address memory.Address) {
+	c.curBlock = &Block{address: address}
+	c.blocks = append(c.blocks, c.curBlock)
+}
+func (c *context) GetCurrentBlock() *Block { return c.curBlock }
+func (c *context) GetAllBlocks() []*Block  { return c.blocks }

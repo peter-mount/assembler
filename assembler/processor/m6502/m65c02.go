@@ -10,7 +10,7 @@ import (
 // 65c02 specific instructions. If an instruction is not defined here
 // it then passes it to the 6502 Processor for the common instructions.
 type M65c02 struct {
-	m6502        *M6502 `'kernel:"inject"`
+	M6502        *M6502 `'kernel:"inject"`
 	instructions *node.Map
 }
 
@@ -32,5 +32,5 @@ func (p *M65c02) Parse(token *lexer.Token, tokens []*lexer.Token) (*node.Node, e
 	}
 
 	// Pass on to the 6502 parser for the common ones
-	return p.m6502.Parse(token, tokens)
+	return p.M6502.Parse(token, tokens)
 }

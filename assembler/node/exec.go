@@ -1,7 +1,7 @@
 package node
 
 import (
-	"assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/context"
 )
 
 func CallChildren(n *Node, ctx context.Context) error {

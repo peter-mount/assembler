@@ -1,9 +1,9 @@
 package context
 
 import (
-	"assembler/assembler/errors"
-	"assembler/assembler/lexer"
-	"assembler/memory"
+	"github.com/peter-mount/assembler/assembler/errors"
+	"github.com/peter-mount/assembler/assembler/lexer"
+	"github.com/peter-mount/assembler/memory"
 	"sort"
 	"strings"
 )

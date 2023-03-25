@@ -1,8 +1,8 @@
 package assembler
 
 import (
-	"assembler/assembler/context"
-	"assembler/m6502"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/m6502"
 	"testing"
 )
 

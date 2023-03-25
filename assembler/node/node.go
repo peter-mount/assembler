@@ -1,7 +1,7 @@
 package node
 
 import (
-	"assembler/assembler/lexer"
+	"github.com/peter-mount/assembler/assembler/lexer"
 	"strings"
 )
 

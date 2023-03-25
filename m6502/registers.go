@@ -1,10 +1,10 @@
 package m6502
 
 import (
-	"assembler/assembler/context"
-	"assembler/assembler/errors"
-	"assembler/assembler/node"
-	"assembler/processor"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/errors"
+	"github.com/peter-mount/assembler/assembler/node"
+	"github.com/peter-mount/assembler/processor"
 )
 
 type ldOpcode struct {

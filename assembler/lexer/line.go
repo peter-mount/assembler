@@ -1,8 +1,8 @@
 package lexer
 
 import (
-	"assembler/memory"
 	"fmt"
+	"github.com/peter-mount/assembler/memory"
 	"strings"
 )
 

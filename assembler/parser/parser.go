@@ -1,12 +1,12 @@
 package parser
 
 import (
-	"assembler/assembler/common"
-	"assembler/assembler/lexer"
-	"assembler/assembler/node"
-	"assembler/memory"
-	processor2 "assembler/processor"
 	"fmt"
+	"github.com/peter-mount/assembler/assembler/common"
+	"github.com/peter-mount/assembler/assembler/lexer"
+	"github.com/peter-mount/assembler/assembler/node"
+	"github.com/peter-mount/assembler/memory"
+	processor2 "github.com/peter-mount/assembler/processor"
 	"strings"
 )
 

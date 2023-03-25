@@ -1,9 +1,9 @@
 package m6502
 
 import (
-	"assembler/assembler"
-	"assembler/assembler/context"
-	"assembler/assembler/errors"
+	"github.com/peter-mount/assembler/assembler"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/errors"
 	"testing"
 )
 

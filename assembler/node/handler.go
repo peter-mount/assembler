@@ -1,9 +1,9 @@
 package node
 
 import (
-	"assembler/assembler/context"
-	"assembler/assembler/lexer"
 	"fmt"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/lexer"
 	"strings"
 )
 

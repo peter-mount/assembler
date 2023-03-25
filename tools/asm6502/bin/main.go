@@ -1,10 +1,10 @@
 package main
 
 import (
-	common "assembler"
-	"assembler/assembler"
-	_ "assembler/m6502"
 	"fmt"
+	common "github.com/peter-mount/assembler"
+	"github.com/peter-mount/assembler/assembler"
+	_ "github.com/peter-mount/assembler/m6502"
 	"github.com/peter-mount/go-kernel/v2"
 	"os"
 )

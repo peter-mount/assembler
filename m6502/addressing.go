@@ -1,11 +1,11 @@
 package m6502
 
 import (
-	"assembler/assembler/common"
-	"assembler/assembler/context"
-	"assembler/assembler/errors"
-	"assembler/assembler/node"
 	"fmt"
+	"github.com/peter-mount/assembler/assembler/common"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/errors"
+	"github.com/peter-mount/assembler/assembler/node"
 )
 
 type AddressMode uint8

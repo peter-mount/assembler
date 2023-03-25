@@ -1,9 +1,9 @@
 package processor
 
 import (
-	"assembler/assembler/errors"
-	"assembler/assembler/lexer"
-	"assembler/assembler/node"
+	"github.com/peter-mount/assembler/assembler/errors"
+	"github.com/peter-mount/assembler/assembler/lexer"
+	"github.com/peter-mount/assembler/assembler/node"
 )
 
 type Processor interface {

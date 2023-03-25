@@ -1,8 +1,8 @@
 package context
 
 import (
-	"assembler/memory"
 	"bytes"
+	"github.com/peter-mount/assembler/memory"
 	"testing"
 )
 

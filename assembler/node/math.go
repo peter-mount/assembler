@@ -1,8 +1,8 @@
 package node
 
 import (
-	"assembler/assembler/context"
-	"assembler/util"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/util"
 )
 
 // IntHandler converts its text into an integer and pushes it onto the stack

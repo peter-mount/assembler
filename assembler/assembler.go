@@ -1,13 +1,13 @@
 package assembler
 
 import (
-	"assembler/assembler/context"
-	"assembler/assembler/lexer"
-	"assembler/assembler/node"
-	"assembler/assembler/parser"
-	"assembler/processor"
 	"flag"
 	"fmt"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/lexer"
+	"github.com/peter-mount/assembler/assembler/node"
+	"github.com/peter-mount/assembler/assembler/parser"
+	"github.com/peter-mount/assembler/processor"
 	"github.com/peter-mount/go-kernel/v2/log"
 	"os"
 	"strings"

@@ -1,4 +1,4 @@
-module assembler
+module github.com/peter-mount/assembler
 
 go 1.19
 

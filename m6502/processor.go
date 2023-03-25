@@ -1,7 +1,7 @@
 package m6502
 
 import (
-	"assembler/processor"
+	"github.com/peter-mount/assembler/processor"
 )
 
 func init() {

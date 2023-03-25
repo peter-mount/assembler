@@ -1,11 +1,11 @@
 package common
 
 import (
-	"assembler/assembler/context"
-	"assembler/assembler/errors"
-	"assembler/assembler/lexer"
-	"assembler/assembler/node"
-	"assembler/util"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/errors"
+	"github.com/peter-mount/assembler/assembler/lexer"
+	"github.com/peter-mount/assembler/assembler/node"
+	"github.com/peter-mount/assembler/util"
 )
 
 func Equb(n *node.Node, ctx context.Context) error {

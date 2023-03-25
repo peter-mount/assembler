@@ -1,8 +1,8 @@
 package processor
 
 import (
-	"assembler/assembler/node"
 	"fmt"
+	"github.com/peter-mount/assembler/assembler/node"
 )
 
 type Builder interface {

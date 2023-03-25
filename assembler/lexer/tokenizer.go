@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"assembler/util"
+	"github.com/peter-mount/assembler/util"
 	"strings"
 	"unicode"
 )

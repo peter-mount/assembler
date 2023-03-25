@@ -1,11 +1,11 @@
 package common
 
 import (
-	"assembler/assembler/context"
-	"assembler/assembler/lexer"
-	"assembler/assembler/node"
-	"assembler/memory"
 	"fmt"
+	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/lexer"
+	"github.com/peter-mount/assembler/assembler/node"
+	"github.com/peter-mount/assembler/memory"
 	"testing"
 )
 

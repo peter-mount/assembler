@@ -7,50 +7,38 @@ import (
 	"strings"
 )
 
-func JSR(n *node.Node, ctx context.Context) error {
-	var err error
-	switch ctx.GetStage() {
-
-	case context.StageCompile:
-		// reserve 3 bytes
-		n.GetLine().SetData(0, 0, 0)
-
-	case context.StageBackref:
-		params, err := GetAddressing(n, ctx, AMAddress) // TODO AMAddressLong for JSL (JSR as alias)
-		if err != nil {
-			return err
-		}
-
-		b, err := params.AddressMode.Opcode(0x20, params.Value)
-		if err != nil {
-			return err
-		}
-		n.GetLine().SetData(b...)
+// conditional branch instruction opCodes, used by Branch
+var (
+	branchOpcodes = map[string]byte{
+		"bcc": 0x90,
+		"bcs": 0xb0,
+		"beq": 0xf0,
+		"bne": 0xd0,
+		"bmi": 0x30,
+		"bpl": 0x10,
+		"bvc": 0x50,
+		"bvs": 0x70,
 	}
 
-	return err
-}
+	jsrOpcodes = map[AddressMode]byte{
+		AMAddress:                 0x20,
+		AMAddressLong:             0x22,
+		AMAbsoluteIndexedIndirect: 0xFC,
+	}
+)
 
-// conditional branch instruction opCodes, used by Branch
-var branchOpcodes = map[string]byte{
-	"bcc": 0x90,
-	"bcs": 0xb0,
-	"beq": 0xf0,
-	"bne": 0xd0,
-	"bmi": 0x30,
-	"bpl": 0x10,
-	"bvc": 0x50,
-	"bvs": 0x70,
+func jsr(addressModes ...AddressMode) node.Handler {
+	return instruction(jsrOpcodes, addressModes)
 }
 
 func addBranchOpcodes(b processor.Builder) {
 	for k, _ := range branchOpcodes {
-		b.Handle(k, Branch)
+		b.Handle(k, branch)
 	}
 }
 
 // Branch handles the 6502 conditional branch instructions.
-func Branch(n *node.Node, ctx context.Context) error {
+func branch(n *node.Node, ctx context.Context) error {
 	// Resolve the opCode for this instruction
 	opName := strings.ToLower(n.Token.Text)
 	opCode, exists := branchOpcodes[opName]
@@ -62,7 +50,7 @@ func Branch(n *node.Node, ctx context.Context) error {
 
 // BranchAlways is the 65c02 BRA instruction which shares the same
 // underlying handler as the other branch relative instructions on the 6502
-func BranchAlways(n *node.Node, ctx context.Context) error {
+func branchAlways(n *node.Node, ctx context.Context) error {
 	return branchOp(0x80, n, ctx)
 }
 
@@ -74,7 +62,7 @@ func branchOp(opCode byte, n *node.Node, ctx context.Context) error {
 		// Reserve 2 bytes
 		n.GetLine().SetData(opCode, 0)
 
-	case context.StageBackref:
+	case context.StageOptimise, context.StageBackref:
 		params, err := GetAddressing(n, ctx, AMAddress, AMAddressLong)
 		if err != nil {
 			return err

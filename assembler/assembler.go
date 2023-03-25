@@ -94,7 +94,7 @@ func (a *Assembler) processStage(stage context.Stage, ctx context.Context) error
 		a.root = nil
 		a.blocks = nil
 
-	case context.StageLex:
+	case context.StageTokenize:
 		a.lexer = &lexer.Lexer{}
 		if err := a.lexer.Parse(a.fileName); err != nil {
 			return err

@@ -5,7 +5,7 @@ import (
 	"github.com/peter-mount/assembler/assembler/node"
 )
 
-// BRK Software Break.
+// brk Software Break.
 //
 // Although the instruction is 1 byte long the Program Counter is incremented
 // by 2 to allow for an optional parameter.
@@ -13,22 +13,22 @@ import (
 // To support how older assemblers work (which only write 1 byte) we do
 // the following:
 //
-// BRK			1 byte instruction. It's up to the author to ensure that the following byte(s) is set.
-// BRK #0x00	2 bytes with the value included as the second byte.
+// brk			1 byte instruction. It's up to the author to ensure that the following byte(s) is set.
+// brk #0x00	2 bytes with the value included as the second byte.
 //
 // For example, on the BBC Micro traditionally a break is written as:
 //
-//	BRK
+//	brk
 //	EQUB 0 			; Error code
 //	EQUS "Silly"	; Error message
 //	EQUB 0			; End of message marker
 //
 // As an alternate:
 //
-//	BRK #0 			; Error code
+//	brk #0 			; Error code
 //	EQUS "Silly"	; Error message
 //	EQUB 0			; End of message marker
-func BRK(n *node.Node, ctx context.Context) error {
+func brk(n *node.Node, ctx context.Context) error {
 	var err error
 	switch ctx.GetStage() {
 
@@ -53,16 +53,13 @@ func BRK(n *node.Node, ctx context.Context) error {
 	return err
 }
 
-// COP 65816 coprocessor instruction
-func COP(n *node.Node, ctx context.Context) error {
+// cop 65816 coprocessor instruction
+func cop(n *node.Node, ctx context.Context) error {
 	var err error
 	switch ctx.GetStage() {
 
-	case context.StageCompile:
-		n.GetLine().SetData(0, 0)
-
-	case context.StageBackref:
-		// COP const - but we'll accept COP #value as well
+	case context.StageCompile, context.StageOptimise, context.StageBackref:
+		// cop const - but we'll accept cop #value as well
 		params, err := GetAddressing(n, ctx, AMImplied, AMZeroPage, AMImmediate)
 		if err != nil {
 			return n.Token.Pos.Error(err)

@@ -10,7 +10,7 @@ import (
 
 const (
 	StageInit     Stage = iota // Initialisation of the Assembler
-	StageLex                   // Load and lex the sources
+	StageTokenize              // Load and tokenize the sources
 	StageParse                 // Initial parsing stage
 	StageCompile               // Compile opcodes
 	StageOptimise              // Optimise stage to see if an instruction can be reduced in size
@@ -18,7 +18,8 @@ const (
 	StageList                  // List compiled listing
 	StageSymbols               // List symbols
 	StageAssemble              // Assembles each block
-	stageCount                 // Must be last entry, not a real stage, used in ForEachStage()
+	// Must be last entry, not a real stage, used in ForEachStage()
+	stageCount
 )
 
 type Stage int
@@ -85,7 +86,7 @@ func (c *context) GetStage() Stage {
 }
 
 func (c *context) ForEachStage(f StageVisitor) error {
-	for stage := StageLex; stage < stageCount; stage++ {
+	for stage := StageTokenize; stage < stageCount; stage++ {
 		c.stage = stage
 		c.orgAddress = 0
 		c.address = 0

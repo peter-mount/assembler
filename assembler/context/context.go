@@ -29,6 +29,9 @@ type Context interface {
 	// ForEachStage calls a function once for each possible Stage
 	ForEachStage(StageVisitor) error
 
+	Get(string) (interface{}, error)
+	Set(string, interface{}) error
+
 	// GetLabel returns the Line that contains the given label
 	GetLabel(n string) *lexer.Line
 	// SetLabel sets the Line a label references
@@ -61,6 +64,7 @@ type Context interface {
 type StageVisitor func(Stage, Context) error
 
 type context struct {
+	vars       map[string]interface{}
 	labels     map[string]*lexer.Line
 	stage      Stage
 	orgAddress memory.Address // Address provided to last ORG statement
@@ -91,6 +95,55 @@ func (c *context) ForEachStage(f StageVisitor) error {
 		}
 	}
 	return nil
+}
+
+func (c *context) Get(n string) (interface{}, error) {
+	// Labels override variables
+	if line := c.GetLabel(n); line != nil {
+		return line.Address, nil
+	}
+
+	// TODO implement nesting here
+	if v, exists := c.vars[n]; exists {
+		return v, nil
+	}
+
+	// Variable does not exist
+	switch c.GetStage() {
+
+	// It does not exist, but may exist after this point so return 0 as a place holder
+	case StageCompile:
+		return 0, nil
+
+	// Fail as it needs to exist by these stages
+	case StageOptimise, StageBackref:
+		return nil, errors.IllegalArgument()
+
+	// Default TODO should we fail as this should not happen?
+	default:
+		return 0, nil
+	}
+}
+
+func (c *context) Set(n string, v interface{}) error {
+	switch c.GetStage() {
+	// Set variable for the first time
+	case StageCompile:
+		if c.GetLabel(n) != nil {
+			return errors.IllegalArgument()
+		}
+
+		c.vars[n] = v
+		return nil
+
+	// Disallow variables to be redefined
+	case StageOptimise, StageBackref:
+		return errors.IllegalArgument()
+
+	// All other stages just ignore
+	default:
+		return nil
+	}
 }
 
 func (c *context) SetLabel(n string, line *lexer.Line) error {

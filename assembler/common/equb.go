@@ -35,6 +35,27 @@ func Equb(n *node.Node, ctx context.Context) error {
 
 			b = append(b, byte(a))
 
+		case lexer.TokenIdent:
+			v, err := ctx.Get(token.Text)
+			if err != nil {
+				return token.Pos.Error(err)
+			}
+
+			a, err := ToInt(v)
+			if err != nil {
+				return token.Pos.Error(err)
+			}
+
+			// Handle negative values
+			if a < 0 {
+				a = a + 256
+			}
+			if a < 0 || a > 255 {
+				return token.Pos.Errorf("%q is not a byte", token.Text)
+			}
+
+			b = append(b, byte(a))
+
 		// TODO If TokenIdent then do a variable/label lookup here
 
 		// Ignore valid value separators

@@ -4,44 +4,64 @@ import (
 	"github.com/peter-mount/assembler/assembler/node"
 )
 
-func adc(addressModes ...AddressMode) node.Handler {
-	return instruction(map[AddressMode]byte{
+var (
+	adcOpcodes = map[AddressMode]byte{
 		AMImmediate:            0x69,
 		AMAddress:              0x6d,
 		AMAddressLong:          0x6f,
 		AMZeroPage:             0x65,
 		AMZeroPageIndirect:     0x72,
 		AMZeroPageIndirectLong: 0x67,
-	}, addressModes)
-}
+		AMAbsoluteIndexedX:     0x7d,
+		AMAbsoluteIndexedY:     0x79,
+		AMZeroPageIndexedX:     0x75,
+		AMZeroPageIndirectX:    0x61,
+		AMZeroPageIndirectY:    0x71,
+	}
 
-func sbc(addressModes ...AddressMode) node.Handler {
-	return instruction(map[AddressMode]byte{
+	sbcOpcodes = map[AddressMode]byte{
 		AMImmediate:            0xe9,
 		AMAddress:              0xed,
 		AMAddressLong:          0xef,
 		AMZeroPage:             0xe5,
 		AMZeroPageIndirect:     0xe2,
 		AMZeroPageIndirectLong: 0xe7,
-	}, addressModes)
-}
+		AMAbsoluteIndexedX:     0xfd,
+		AMAbsoluteIndexedY:     0xf9,
+		AMZeroPageIndexedX:     0xf5,
+		AMZeroPageIndirectX:    0xe1,
+		AMZeroPageIndirectY:    0xf1,
+	}
 
-func dec(addressModes ...AddressMode) node.Handler {
-	return instruction(map[AddressMode]byte{
+	decOpcodes = map[AddressMode]byte{
 		AMAccumulator:      0x3a,
 		AMAddress:          0xce,
 		AMZeroPage:         0xc6,
 		AMAbsoluteIndexedX: 0xde,
 		AMZeroPageIndexedX: 0xd6,
-	}, addressModes)
-}
+	}
 
-func inc(addressModes ...AddressMode) node.Handler {
-	return instruction(map[AddressMode]byte{
+	incOpcodes = map[AddressMode]byte{
 		AMAccumulator:      0x1a,
 		AMAddress:          0xee,
 		AMZeroPage:         0xe6,
 		AMAbsoluteIndexedX: 0xfe,
 		AMZeroPageIndexedX: 0xf6,
-	}, addressModes)
+	}
+)
+
+func adc(addressModes ...AddressMode) node.Handler {
+	return instruction(adcOpcodes, addressModes)
+}
+
+func sbc(addressModes ...AddressMode) node.Handler {
+	return instruction(sbcOpcodes, addressModes)
+}
+
+func dec(addressModes ...AddressMode) node.Handler {
+	return instruction(decOpcodes, addressModes)
+}
+
+func inc(addressModes ...AddressMode) node.Handler {
+	return instruction(incOpcodes, addressModes)
 }

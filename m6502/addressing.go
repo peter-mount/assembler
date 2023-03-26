@@ -207,9 +207,8 @@ func GetAddressing(n *node.Node, ctx context.Context, accept ...AddressMode) (Ad
 
 	// Default to address
 	default:
-		i, err := common.GetNodeInt(r, ctx)
+		err = addr.getInt(children, 0, AMAddress, ctx)
 		if err == nil {
-			addr.Value = uint(i)
 			addr.AddressMode, err = resolveAddressMode(addr.Value, accept, addressAddressModes)
 		}
 	}

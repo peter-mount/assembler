@@ -20,7 +20,10 @@ func instruction(m map[AddressMode]byte, addressModes []AddressMode) node.Handle
 		var err error
 		switch ctx.GetStage() {
 
-		case context.StageCompile, context.StageOptimise, context.StageBackref:
+		case context.StageCompile:
+			// Do nothing until we have all labels set
+
+		case context.StageOptimise, context.StageBackref:
 			params, err := GetAddressing(n, ctx)
 			if err != nil {
 				return n.Token.Pos.Error(err)

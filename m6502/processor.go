@@ -13,7 +13,6 @@ func init() {
 func M6502() processor.Processor {
 	return processor.New("6502").
 		Include(addBranchOpcodes).
-		Include(addRegisterInstructions(ldOpcodes6502)).
 		Handle("ADC", adc(AMImmediate, AMAddress, AMZeroPage, AMAbsoluteIndexedX, AMAbsoluteIndexedY, AMZeroPageIndirectX, AMZeroPageIndirectY)).
 		Handle("BRK", brk).
 		Handle("DEC", dec(AMAddress, AMZeroPage, AMAbsoluteIndexedX, AMZeroPageIndexedX)).
@@ -21,6 +20,9 @@ func M6502() processor.Processor {
 		Simple("INX", 0xe8).
 		Simple("INY", 0xc8).
 		Handle("JSR", jsr(AMAddress)).
+		Handle("LDA", lda(AMImmediate, AMAddress, AMZeroPage, AMZeroPageIndirectX, AMZeroPageIndirectY, AMZeroPageIndexedX, AMAbsoluteIndexedX, AMAbsoluteIndexedY)).
+		Handle("LDX", ldx()).
+		Handle("LDY", ldy()).
 		Simple("NOP", 0xea).
 		Simple("RTI", 0x40).
 		Simple("RTS", 0x60).
@@ -35,6 +37,7 @@ func M65C02() processor.Processor {
 		Handle("BRA", branchAlways).
 		Handle("DEC", dec(AMAccumulator)).
 		Handle("INC", inc(AMAccumulator)).
+		Handle("LDA", lda(AMZeroPageIndirect)).
 		Handle("SBC", sbc(AMZeroPageIndirect)).
 		Build()
 }
@@ -46,6 +49,7 @@ func M65816() processor.Processor {
 		Handle("ADC", adc(AMAddressLong, AMZeroPageIndirectLong, AMAbsoluteLongIndexedX, AMZeroPageIndirectLongY, AMStackRelative, AMStackRelativeIndirectIndexedY)).
 		Handle("COP", cop).
 		Handle("JSR", jsr(AMAddressLong, AMAbsoluteIndexedIndirect)).
+		Handle("LDA", lda(AMAddressLong, AMZeroPageIndirectLong, AMAbsoluteLongIndexedX, AMZeroPageIndirectLongY, AMStackRelative, AMStackRelativeIndirectIndexedY)).
 		Simple("RTL", 0x6b).
 		Handle("SBC", sbc(AMAddressLong, AMZeroPageIndirectLong)).
 		Simple("STP", 0xdb).

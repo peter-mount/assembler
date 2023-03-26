@@ -35,6 +35,9 @@ func instruction(m map[AddressMode]byte, addressModes []AddressMode) node.Handle
 					return errors.IllegalArgument()
 				}
 				switch params.AddressMode {
+				case AMImplied:
+					n.GetLine().SetData(opCode)
+
 				case AMImmediate,
 					AMZeroPage, AMZeroPageIndirect,
 					AMZeroPageIndirectX, AMZeroPageIndirectY,

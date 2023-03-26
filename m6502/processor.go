@@ -43,10 +43,11 @@ func M65C02() processor.Processor {
 func M65816() processor.Processor {
 	return processor.New("65816").
 		Extends(M65C02()).
-		Handle("ADC", adc(AMAddressLong)).
+		Handle("ADC", adc(AMAddressLong, AMZeroPageIndirectLong, AMAbsoluteLongIndexedX, AMZeroPageIndirectLongY, AMStackRelative, AMStackRelativeIndirectIndexedY)).
 		Handle("COP", cop).
 		Handle("JSR", jsr(AMAddressLong, AMAbsoluteIndexedIndirect)).
-		Handle("SBC", sbc(AMAddressLong)).
+		Simple("RTL", 0x6b).
+		Handle("SBC", sbc(AMAddressLong, AMZeroPageIndirectLong)).
 		Simple("STP", 0xdb).
 		Simple("WAI", 0xcb).
 		Simple("WDM", 0x42).

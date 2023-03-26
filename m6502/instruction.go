@@ -12,7 +12,7 @@ func instruction(m map[AddressMode]byte, addressModes []AddressMode) node.Handle
 	// Validate we have the required entries
 	for _, am := range addressModes {
 		if _, exists := m[am]; !exists {
-			panic(fmt.Errorf("address mode %d(%s) is not in definition", am, am.String()))
+			panic(fmt.Errorf("address mode %s(%d) is not in definition", am.String(), am))
 		}
 	}
 

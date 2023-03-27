@@ -30,11 +30,13 @@ type Context interface {
 	// ForEachStage calls a function once for each possible Stage
 	ForEachStage(StageVisitor) error
 
-	Get(string) (interface{}, error)
+	Get(string) (*Value, error)
 	Set(string, interface{}) error
+	StartScope()
+	EndScope()
 
 	// GetLabel returns the Line that contains the given label
-	GetLabel(n string) *lexer.Line
+	GetLabel(n string) (*lexer.Line, bool)
 	// SetLabel sets the Line a label references
 	SetLabel(n string, line *lexer.Line) error
 	// GetLabels returns all labels in sorted order
@@ -54,7 +56,9 @@ type Context interface {
 	// Push a value onto the top of the value stack
 	Push(interface{})
 	// Pop a value from the value stack
-	Pop() (interface{}, error)
+	Pop() (*Value, error)
+	Pop2() (*Value, *Value, error)
+	Swap() error
 
 	ClearBlocks()
 	StartBlock(memory.Address)
@@ -65,20 +69,18 @@ type Context interface {
 type StageVisitor func(Stage, Context) error
 
 type context struct {
-	vars       map[string]interface{}
-	labels     map[string]*lexer.Line
-	stage      Stage
-	orgAddress memory.Address // Address provided to last ORG statement
-	address    memory.Address // Current assembly address
-	stack      []interface{}  // Value stack
-	curBlock   *Block         // Current block
-	blocks     []*Block       // Compiled blocks
+	stage      Stage                  // Current stage during assembly
+	orgAddress memory.Address         // Label provided to last ORG statement
+	address    memory.Address         // Current assembly address
+	curBlock   *Block                 // Current block
+	blocks     []*Block               // Compiled blocks
+	labels     map[string]*lexer.Line // Line labels
+	stack      []*Value               // Value stack
+	vars       []map[string]*Value    // Variables
 }
 
 func New() Context {
-	return &context{
-		labels: make(map[string]*lexer.Line),
-	}
+	return &context{}
 }
 
 func (c *context) GetStage() Stage {
@@ -86,27 +88,31 @@ func (c *context) GetStage() Stage {
 }
 
 func (c *context) ForEachStage(f StageVisitor) error {
-	for stage := StageTokenize; stage < stageCount; stage++ {
+	for stage := StageInit; stage < stageCount; stage++ {
 		c.stage = stage
 		c.orgAddress = 0
 		c.address = 0
 		c.ClearStack()
-		if err := f(stage, c); err != nil {
+		if stage == StageInit {
+			c.vars = nil
+			c.labels = make(map[string]*lexer.Line)
+		} else if err := f(stage, c); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *context) Get(n string) (interface{}, error) {
+func (c *context) Get(n string) (*Value, error) {
 	// Labels override variables
-	if line := c.GetLabel(n); line != nil {
-		return line.Address, nil
+	if line, defined := c.GetLabel(n); defined {
+		return LabelValue(line), nil
 	}
 
-	// TODO implement nesting here
-	if v, exists := c.vars[n]; exists {
-		return v, nil
+	for _, v := range c.vars {
+		if val, exists := v[n]; exists {
+			return val, nil
+		}
 	}
 
 	// Variable does not exist
@@ -114,7 +120,7 @@ func (c *context) Get(n string) (interface{}, error) {
 
 	// It does not exist, but may exist after this point so return 0 as a place holder
 	case StageCompile:
-		return 0, nil
+		return &zeroValue, nil
 
 	// Fail as it needs to exist by these stages
 	case StageOptimise, StageBackref:
@@ -122,7 +128,7 @@ func (c *context) Get(n string) (interface{}, error) {
 
 	// Default TODO should we fail as this should not happen?
 	default:
-		return 0, nil
+		return &zeroValue, nil
 	}
 }
 
@@ -130,11 +136,25 @@ func (c *context) Set(n string, v interface{}) error {
 	switch c.GetStage() {
 	// Set variable for the first time
 	case StageCompile:
-		if c.GetLabel(n) != nil {
+		if _, defined := c.GetLabel(n); defined {
 			return errors.IllegalArgument()
 		}
 
-		c.vars[n] = v
+		// Force a scope to start if we don't have none
+		if len(c.vars) == 0 {
+			c.StartScope()
+		}
+
+		// Find existing entry
+		for _, v := range c.vars {
+			if _, exists := v[n]; exists {
+				v[n] = Of(v)
+				return nil
+			}
+		}
+
+		// Set in current scope
+		c.vars[0][n] = Of(v)
 		return nil
 
 	// Disallow variables to be redefined
@@ -147,6 +167,16 @@ func (c *context) Set(n string, v interface{}) error {
 	}
 }
 
+func (c *context) StartScope() {
+	c.vars = append([]map[string]*Value{make(map[string]*Value)}, c.vars...)
+}
+
+func (c *context) EndScope() {
+	if len(c.vars) > 1 {
+		c.vars = c.vars[1:]
+	}
+}
+
 func (c *context) SetLabel(n string, line *lexer.Line) error {
 	if _, exists := c.labels[n]; exists {
 		return line.Pos.Errorf("label %q already defined", n)
@@ -154,7 +184,11 @@ func (c *context) SetLabel(n string, line *lexer.Line) error {
 	c.labels[n] = line
 	return nil
 }
-func (c *context) GetLabel(n string) *lexer.Line { return c.labels[n] }
+func (c *context) GetLabel(n string) (*lexer.Line, bool) {
+	a, e := c.labels[n]
+	return a, e
+}
+
 func (c *context) GetLabels() []string {
 	var a []string
 	for k, _ := range c.labels {
@@ -178,9 +212,9 @@ func (c *context) AddAddress(delta int) memory.Address {
 }
 
 func (c *context) ClearStack()        { c.stack = nil }
-func (c *context) Push(v interface{}) { c.stack = append(c.stack, v) }
+func (c *context) Push(v interface{}) { c.stack = append(c.stack, Of(v)) }
 
-func (c *context) Pop() (interface{}, error) {
+func (c *context) Pop() (*Value, error) {
 	switch len(c.stack) {
 	case 0:
 		return nil, errors.StackEmpty()
@@ -196,6 +230,34 @@ func (c *context) Pop() (interface{}, error) {
 		c.stack = c.stack[:l]
 		return v, nil
 	}
+}
+func (c *context) Pop2() (*Value, *Value, error) {
+	// b is first as it's the top value
+	b, err := c.Pop()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Now a
+	a, err := c.Pop()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// a, b in the order you would expect
+	return a, b, nil
+}
+
+// Swap swaps the top 2 values on the stack.
+// Returns error if the stack doesn't have 2 items to swap.
+func (c *context) Swap() error {
+	l := len(c.stack)
+	if l < 2 {
+		return errors.StackEmpty()
+	}
+
+	c.stack[l-2], c.stack[l-1] = c.stack[l-1], c.stack[l-2]
+	return nil
 }
 
 func (c *context) ClearBlocks() {

@@ -20,8 +20,7 @@ func IntHandler(n *Node, ctx context.Context) error {
 func IdentHandler(n *Node, ctx context.Context) error {
 	t := n.Token.Text
 
-	line := ctx.GetLabel(t)
-	if line != nil {
+	if line, exists := ctx.GetLabel(t); exists {
 		ctx.Push(line.Address)
 	}
 

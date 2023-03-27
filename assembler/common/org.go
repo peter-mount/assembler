@@ -9,12 +9,12 @@ import (
 func OrgHandler(n *node.Node, ctx context.Context) error {
 	err := node.CallChildren(n, ctx)
 
-	var r interface{}
+	var r *context.Value
 	var addr int64
 	if err == nil {
 		r, err = ctx.Pop()
 		if err == nil {
-			addr, err = ToInt(r)
+			addr = r.Int()
 		}
 	}
 	if err != nil {

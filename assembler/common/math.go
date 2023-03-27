@@ -3,22 +3,26 @@ package common
 import (
 	"github.com/peter-mount/assembler/assembler/context"
 	"github.com/peter-mount/assembler/assembler/errors"
+	"github.com/peter-mount/assembler/assembler/lexer"
 	"github.com/peter-mount/assembler/assembler/node"
 	"github.com/peter-mount/assembler/memory"
 	"github.com/peter-mount/assembler/util"
 )
 
 // ToInt converts an interface{} to an int64.
-// This supports v if it's an int, int64, Address or string
+// This supports v if it's an int, int64, Label or string
 func ToInt(v interface{}) (int64, error) {
+	if a, ok := v.(*context.Value); ok {
+		return a.Int(), nil
+	}
 	if i, ok := v.(int64); ok {
 		return i, nil
 	}
 	if i, ok := v.(int); ok {
 		return int64(i), nil
 	}
-	if i, ok := v.(memory.Address); ok {
-		return int64(i), nil
+	if l, ok := v.(*lexer.Line); ok {
+		return int64(l.Address), nil
 	}
 	if s, ok := v.(string); ok {
 		return util.Atoi(s)
@@ -61,7 +65,7 @@ func GetNodeInt(n *node.Node, ctx context.Context) (int64, error) {
 }
 
 // GetNodeAddress visits a node and returns the top value from the stack
-// as an Address.
+// as an Label.
 func GetNodeAddress(n *node.Node, ctx context.Context) (memory.Address, error) {
 	r, err := GetNodeInterface(n, ctx)
 	if err != nil {

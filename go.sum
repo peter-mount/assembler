@@ -2,6 +2,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
+github.com/peter-mount/calculator v0.0.0-20200630071325-0feb360e0591 h1:jerA6ym0clikbHmp0WqDYra5UR/Jy1OveMUd0mwwhJA=
+github.com/peter-mount/calculator v0.0.0-20200630071325-0feb360e0591/go.mod h1:N3acZ/MufU8LywbFstEKuj7Jo9LH2oggj2JPTgQFrvM=
 github.com/peter-mount/go-kernel/v2 v2.0.3-0.20230124175314-cffb95a03dd0 h1:OYK9yS+MnEE6QK7SZGmOcfxtKpt++tdsp5UrPgPU3P0=
 github.com/peter-mount/go-kernel/v2 v2.0.3-0.20230124175314-cffb95a03dd0/go.mod h1:VOvrZc7Mb3Fy8zjuDxVBfmgydRMNLzQ2cpOCnBLR/lE=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

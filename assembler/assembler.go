@@ -155,11 +155,12 @@ func (a *Assembler) listSymbols(ctx context.Context) error {
 		}
 	}
 	f := fmt.Sprintf("%%-%d.%ds", ml, ml)
-	s := fmt.Sprintf(f+" Address", "Label")
+	s := fmt.Sprintf(f+" Label", "Label")
 	log.Printf("%s\n%s", s, strings.Repeat("=", len(s)))
 	f = f + " %x"
 	for _, l := range labels {
-		log.Printf(f, l, ctx.GetLabel(l).Address)
+		line, _ := ctx.GetLabel(l)
+		log.Printf(f, l, line.Address)
 	}
 	log.Println(strings.Repeat("=", len(s)))
 	return nil

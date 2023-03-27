@@ -100,7 +100,7 @@ const (
 	AMZeroPageIndirectLongY                            // [0x12],Y 		65816 only Direct page long Index Y
 	AMAccumulator                                      // ASL A
 	AMAbsoluteIndexedIndirect                          // (0x1234,X)	65816 only
-	AMBlockMove                                        // source, dest	65816 only, consists of Address ',' Address
+	AMBlockMove                                        // source, dest	65816 only, consists of Label ',' Label
 	AMStackRelative                                    // sr,S			65816 only, stack relative
 	AMStackRelativeIndirectIndexedY                    // (sr,S),Y		65816 only, stack relative indirect indexed Y
 	// must be last, used in tests to identify how many are defined

@@ -20,6 +20,7 @@ const (
 	TokenLabel                          // Set Label
 	TokenOpcode                         // A parsed OPCode
 	TokenData                           // A parsed data block
+	TokenCalculator                     // Calculator expression
 )
 
 type Token struct {

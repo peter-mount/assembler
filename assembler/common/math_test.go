@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/peter-mount/assembler/assembler/context"
+	"github.com/peter-mount/assembler/assembler/lexer"
 	"github.com/peter-mount/assembler/assembler/node"
 	"github.com/peter-mount/assembler/memory"
 	"reflect"
@@ -125,6 +126,7 @@ func TestToInt(t *testing.T) {
 		{name: "int64", value: int64(42), expected: 42},
 		{name: "int", value: 32767, expected: 32767},
 		{name: "Label", value: memory.Address(0x6543), expected: 0x6543},
+		{name: "Line", value: &lexer.Line{Address: memory.Address(0x6543)}, expected: 0x6543},
 		{name: "string", value: "1024", expected: 1024},
 		{name: "NAN", value: "This is not a number", wantError: true},
 	}

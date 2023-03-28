@@ -21,6 +21,9 @@ func ToInt(v interface{}) (int64, error) {
 	if i, ok := v.(int); ok {
 		return int64(i), nil
 	}
+	if a, ok := v.(memory.Address); ok {
+		return int64(a), nil
+	}
 	if l, ok := v.(*lexer.Line); ok {
 		return int64(l.Address), nil
 	}

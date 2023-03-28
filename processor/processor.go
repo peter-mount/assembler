@@ -13,6 +13,10 @@ type Processor interface {
 
 	// Parse parses an operation
 	Parse(token *lexer.Token, tokens []*lexer.Token) (*node.Node, error)
+
+	// Reserved returns true if an ident is reserved.
+	// This can be either it matches an opcode or a processor specific reserved word like a Register name.
+	Reserved(s string) bool
 }
 
 type processor struct {

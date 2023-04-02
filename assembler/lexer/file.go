@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"bytes"
 	"os"
 	"path/filepath"
 )
@@ -66,6 +65,13 @@ func ReadFile(fileName string) (*File, error) {
 	return file, nil
 }
 
+const (
+	LF = '\n' // Line Feed
+	VT = 0x0b // Vertical Tab
+	FF = 0x0c // Form Feed
+	CR = '\r' // Carriage Return
+)
+
 // ScanLine scans for the next line from a position in a byte slice.
 // It returns the start of the next line, the line just found, and a boolean which
 // is true when at the end of the file.
@@ -77,29 +83,35 @@ func ReadFile(fileName string) (*File, error) {
 // The following sequences will produce blank lines:
 // \n\n, \r\r, \r\n\r\n, \n\r\n\r
 func ScanLine(p int, b []byte) (int, string, bool) {
-	bp := b[p:]
-	n := bytes.IndexByte(bp, '\n')
-	r := bytes.IndexByte(bp, '\r')
+	//bp := b[p:]
 
-	switch {
-	// \r\n	CRLF	CP/M MSDos Windows AtariTOS AmstradCPC
-	case n > 0 && r >= 0 && r == (n-1):
-		return p + n + 1, string(bp[:r]), false
+	l := len(b)
+	e, r, l1 := l, l, l-1
+	for i := p; r == l && i < l; i++ {
+		switch b[i] {
+		// CR or CRLF
+		case CR:
+			e, r = testChar(LF, i, l1, b)
+			break
 
-	// \n\r LFCR	Acorn BBC, RiscOS spooled text (aka OSASCII) output
-	case n > 0 && r >= 0 && n == (r-1):
-		return p + r + 1, string(bp[:n]), false
+		// LF or LFCR
+		case LF:
+			e, r = testChar(CR, i, l1, b)
+			break
 
-	// \n	LF		Unix, Linux, Amiga, RiscOS
-	case n >= 0:
-		return p + n + 1, string(bp[:n]), false
-
-	// \r	CR		Commodore 8-bit, Acorn BBC, ZX Spectrum, TRS-80, Apple II
-	case r >= 0:
-		return p + r + 1, string(bp[:r]), false
-
-	// Return the entire slice as probably the last line
-	default:
-		return 0, string(bp), true
+		// Unicode standard for line terminators
+		case FF, VT:
+			e, r = i, i+1
+			break
+		}
 	}
+
+	return r, string(b[p:e]), r >= l
+}
+
+func testChar(c2 byte, i, l1 int, b []byte) (int, int) {
+	if i < l1 && b[i+1] == c2 {
+		return i, i + 2
+	}
+	return i, i + 1
 }

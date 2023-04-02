@@ -75,22 +75,30 @@ func ReadFile(fileName string) (*File, error) {
 //
 // Here we look for both \r and \n and split the line at that point.
 // The following sequences will produce blank lines:
-// \n\n, \r\r, \r\n\r\n
+// \n\n, \r\r, \r\n\r\n, \n\r\n\r
 func ScanLine(p int, b []byte) (int, string, bool) {
 	bp := b[p:]
 	n := bytes.IndexByte(bp, '\n')
 	r := bytes.IndexByte(bp, '\r')
 
 	switch {
-	// \r\n
+	// \r\n	CRLF	CP/M MSDos Windows AtariTOS AmstradCPC
 	case n > 0 && r >= 0 && r == (n-1):
 		return p + n + 1, string(bp[:r]), false
-		// \n
+
+	// \n\r LFCR	Acorn BBC, RiscOS spooled text (aka OSASCII) output
+	case n > 0 && r >= 0 && n == (r-1):
+		return p + r + 1, string(bp[:n]), false
+
+	// \n	LF		Unix, Linux, Amiga, RiscOS
 	case n >= 0:
 		return p + n + 1, string(bp[:n]), false
-		// \r
+
+	// \r	CR		Commodore 8-bit, Acorn BBC, ZX Spectrum, TRS-80, Apple II
 	case r >= 0:
 		return p + r + 1, string(bp[:r]), false
+
+	// Return the entire slice as probably the last line
 	default:
 		return 0, string(bp), true
 	}
